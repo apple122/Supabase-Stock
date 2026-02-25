@@ -1,5 +1,5 @@
 {
-  "homepage": "https://username.github.io/repository-name",
+  "homepage": "https://apple122.github.io/Supabase-Stock",
   "name": "react-app",
   "version": "0.1.0",
   "private": true,
@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",

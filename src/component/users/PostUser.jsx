@@ -60,10 +60,12 @@ export default function PostUser() {
         <div style={{ marginBottom: 8 }}>
           <label style={{ display: 'block', marginBottom: 4 }}>Phone</label>
           <input
+            type="number"
             value={tel}
+            maxLength={10}
             onChange={(e) => setTel(e.target.value)}
             style={{ width: '100%', padding: 8 }}
-            placeholder="Optional"
+            placeholder="Tel Number"
           />
         </div>
 
