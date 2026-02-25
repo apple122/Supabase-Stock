@@ -4,6 +4,7 @@ import { supabase } from '../../supabaseClient'
 export default function PostUser() {
   const [fullname, setFullname] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [tel, setTel] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState(null)
@@ -15,7 +16,7 @@ export default function PostUser() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .insert([{ fullname, email, tel }])
+        .insert([{ fullname, email, password, tel }])
         .select()
 
       if (error) throw error
@@ -52,6 +53,17 @@ export default function PostUser() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{ width: '100%', padding: 8 }}
+          />
+        </div>
+
+        <div style={{ marginBottom: 8 }}>
+          <label style={{ display: 'block', marginBottom: 4 }}>Email</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             style={{ width: '100%', padding: 8 }}
           />

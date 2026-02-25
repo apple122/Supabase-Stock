@@ -1,47 +1,35 @@
-import React, { useEffect, useState } from 'react'
-import './index.css'
-import Auth from './Auth'
-import Account from './Account'
-import { supabase } from './supabaseClient'
-import GET_Users from './component/users/GET_Users'
-import PostUser from './component/users/PostUser'
+import React, { useState, useEffect } from 'react'
+import Index from './component/Index'
+import Login from './component/Login'
+import Test from './component/test'
 
 export default function App() {
+  const [user, setUser] = useState(null)
 
-  const [session, setSession] = useState(null);
-  const [route, setRoute] = useState('users')
-
+  // restore user from localStorage on mount
   useEffect(() => {
-    // Get current session (Supabase v2)
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => setSession(session))
-      .catch(() => {})
-
-    // Subscribe to auth state changes and cleanup on unmount
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    })
-
-    return () => {
-      subscription?.unsubscribe?.()
+    try {
+      const raw = localStorage.getItem('user')
+      if (raw) setUser(JSON.parse(raw))
+    } catch (err) {
+      console.warn('Failed to parse stored user', err)
     }
   }, [])
 
-  return (
-    <div className="container" style={{ padding: 50 }}>
-      {/* {!session ? <Auth /> : <Account key={session?.user?.id} session={session} />} */}
-      {/* <CreatePost /> */}
-      <nav style={{ marginBottom: 20, display: 'flex', gap: 8 }}>
-        <button className="button" onClick={() => setRoute('auth')}>Auth</button>
-        {/* <button className="button" onClick={() => setRoute('account')}>Account</button> */}
-        <button className="button" onClick={() => setRoute('users')}>Users</button>
-        <button className="button" onClick={() => setRoute('create-user')}>Create User</button>
-      </nav>
+  // persist user to localStorage when it changes
+  useEffect(() => {
+    try {
+      if (user) localStorage.setItem('user', 'true')
+      else localStorage.removeItem('user')
+    } catch (err) {
+      console.warn('Failed to persist user', err)
+    }
+  }, [user])
 
-      {route === 'auth' && <Auth />}
-      {route === 'account' && <Account key={session?.user?.id} session={session} />}
-      {route === 'users' && <GET_Users />}
-      {route === 'create-user' && <PostUser />}
+  return (
+    <div className="app-layout">
+      {/* <Test /> */}
+      {user && 'true' ? <Index /> : <Login onUser={setUser} />}
     </div>
   )
 }

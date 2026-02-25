@@ -334,6 +334,54 @@ button.primary,
   margin-bottom: 20px;
 }
 
+/* App layout (sidebar + main) */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 220px;
+  min-width: 160px;
+  padding: 12px;
+  border-right: 0.5px solid rgba(255,255,255,0.08);
+  background: transparent;
+}
+.sidebar-nav button {
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.main-content {
+  flex: 1;
+  padding: 24px;
+}
+
+/* Responsive: collapse sidebar into horizontal top bar on small screens */
+@media (max-width: 720px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    padding: 8px;
+  }
+  .sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .sidebar-nav button {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding: 8px 12px;
+  }
+  .main-content {
+    padding: 12px;
+  }
+}
+
 .avatarPlaceholder {
   border: var(--custom-border);
   border-radius: var(--custom-border-radius);

@@ -12,7 +12,7 @@ export default function GET_Users() {
       // Ensure your Supabase row-level policies or grants allow this client to select.
       const { data, error } = await supabase
         .from('users') // schema-qualified table
-        .select('id, fullname, email, tel')
+        .select('id, fullname, email, password, tel, created_at')
 
       if (error) throw error
       setUsers(data || [])
@@ -46,6 +46,8 @@ export default function GET_Users() {
             <tr>
               <th>ID</th>
               <th>Email</th>
+              <th>Fullname</th>
+              <th>Password</th>
               <th>Phone</th>
               <th>Created</th>
             </tr>
@@ -56,7 +58,9 @@ export default function GET_Users() {
                 <td style={{ wordBreak: 'break-all' }}>{u.id}</td>
                 <td>{u.email}</td>
                 <td>{u.fullname || '-'}</td>
-                <td>{u.tel ? new Date(u.created_at).toLocaleString() : '-'}</td>
+                <td>{u.password || '-'}</td>
+                <td>{u.tel}</td>
+                <td>{u.created_at ? new Date(u.created_at).toLocaleString() : '-'}</td>
               </tr>
             ))}
           </tbody>
