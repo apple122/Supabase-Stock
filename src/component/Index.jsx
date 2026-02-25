@@ -30,8 +30,7 @@ export default function Index() {
         <>
             <LEFT current={route} onNavigate={setRoute} />
 
-            <main className="main-content">
-                {route === 'auth' && <Auth />}
+            <main className="main-content" style={{ padding: 20 }}>
                 {route === 'users' && <GET_Users />}
                 {route === 'create-user' && <PostUser />}
             </main>

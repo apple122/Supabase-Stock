@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Index from './component/Index'
 import Login from './component/Login'
 import Test from './component/test'
+import './component/style/Nav.css'
 
 export default function App() {
   const [user, setUser] = useState(null)

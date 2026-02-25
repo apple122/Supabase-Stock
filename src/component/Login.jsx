@@ -16,7 +16,7 @@ export default function Login({ onUser }) {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('id, email, password, created_at')
+        .select('id, fullname, email, password, tel, created_at')
         .eq('email', email)
         .eq('password', password)
         .limit(1)
@@ -26,6 +26,7 @@ export default function Login({ onUser }) {
       setUser(data)
       try {
         onUser?.(data)
+        localStorage.setItem('data', JSON.stringify(data))
       } catch (err) {
         console.warn('onUser callback error', err)
       }

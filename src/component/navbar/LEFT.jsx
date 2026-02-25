@@ -1,53 +1,96 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
+import Lottie from 'lottie-react'
+import animationData from '../../icon/Menu-white.json'
 
 export default function LEFT({ current, onNavigate }) {
+
     const items = [
-        { id: 'auth', label: 'Auth' },
         { id: 'users', label: 'Users' },
         { id: 'create-user', label: 'Create User' },
     ]
 
     function onLogout() {
+        localStorage.removeItem('data')
         localStorage.removeItem('user')
         window.location.reload(false)
     }
 
+    const [menuOpen, setMenuOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
+    const lottieRef = useRef();
+
+    const handleClick = () => {
+        if (!isOpen) {
+            lottieRef.current.playSegments([0, 50], true);
+            setMenuOpen(true)
+        } else {
+            lottieRef.current.playSegments([50, 0], true);
+            setMenuOpen(false)
+        }
+        setIsOpen(!isOpen);
+    };
+
+    const raw = JSON.parse(localStorage.getItem('data')).fullname
+
     return (
-        <aside className="sidebar" style={{ width: 200, padding: 12, borderRight: '0.5px solid #2f30312a' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: 12 }}>Navigation</div>
-            <nav className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {items.map((it) => (
+        <>
+            <div className='header'>
+                <Lottie
+                    onClick={handleClick}
+                    lottieRef={lottieRef}
+                    className='menu-icon'
+                    animationData={animationData}
+                    loop={false}
+                    autoplay={false}
+                    style={{ width: 40, borderLeft: '0.5px solid #2f30312a' }}
+                />
+                <hr style={{ margin: '0 10px', borderColor: '#ffffff28' }} />
+                <div style={{ fontWeight: 'bold', marginTop: 5, marginLeft: 10 }}>{raw}</div>
+                <div className='closs' onClick={handleClick} style={{ display: menuOpen ? 'block' : 'none' }}></div>
+            </div>
+            <aside className="sidebar position-nav" style={{ left: menuOpen ? '0%' : '-65%', transition: 'left 0.5s ease', width: 250, padding: 12, borderRight: '0.5px solid #2f30312a', background: '#000000' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: 22 }}>{raw}</div>
+
+                <nav className="sidebar-nav menu" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {items.map((it) => (
+                        <button
+                            className='btn-hover'
+                            key={it.id}
+                            onClick={() => {
+                                onNavigate?.(it.id)
+                                handleClick()
+                            }}
+                            style={{
+                                flex: '1',
+                                textAlign: 'left',
+                                padding: '8px 10px',
+                                background: current === it.id ? '#ffffff1e' : '',
+                                backgroundHover: '#ffffff',
+                                color: current === it.id ? '#fff' : '#ffffff',
+                                border: 'none',
+                                borderRadius: 6,
+                                cursor: 'pointer',
+                            }}
+                        >
+                            {it.label}
+                        </button>
+                    ))}
+                </nav>
+                <div style={{ marginTop: 22 }}>
                     <button
-                        key={it.id}
-                        onClick={() => onNavigate?.(it.id)}
+                        className="button button-danger"
+                        onClick={() => onLogout?.()}
                         style={{
-                            textAlign: 'left',
-                            padding: '8px 10px',
-                            background: current === it.id ? '#0365d63b' : '#2f30312a',
-                            color: current === it.id ? '#fff' : '#ffffff',
-                            border: '1px solid #2f30312a',
-                            borderRadius: 6,
-                            cursor: 'pointer',
+                            width: '100%',
+                            marginTop: 8,
+                            background: '#ff4d4d',
+                            color: '#fff'
                         }}
                     >
-                        {it.label}
+                        Logout
                     </button>
-                ))}
-            </nav>
-            <div style={{ bottom: 12 }}>
-                <button
-                    className="button button-danger"
-                    onClick={() => onLogout?.()}
-                    style={{
-                        width: '100%',
-                        marginTop: 8,
-                        background: '#ff4d4d',
-                        color: '#fff'
-                    }}
-                >
-                    Logout
-                </button>
-            </div>
-        </aside>
+                </div>
+            </aside>
+        </>
     )
 }
