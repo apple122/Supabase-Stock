@@ -12,6 +12,7 @@ body {
   --custom-border-radius: 5px;
   --custom-spacing: 5px;
 
+  font-family: 'Noto Sans Lao', sans-serif;
   padding: 0;
   margin: 0;
   font-family: var(--custom-font-family);
@@ -19,8 +20,8 @@ body {
 }
 
 * {
+  font-family: 'Noto Sans Lao', sans-serif;
   color: var(--custom-color);
-  font-family: var(--custom-font-family);
   box-sizing: border-box;
   transform: transform 3s ease;
 }
@@ -528,4 +529,68 @@ button.primary,
 
 .btn-hover:hover {
   background-color: #ffffff1e;
+}
+
+/* ProductTable  */
+.deploy-list {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #1f2430;
+  background-color: var(--custom-bg-color);
+}
+
+.deploy-item {
+  display: grid;
+  grid-template-columns: 20% 20% 15% 1fr 30%;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #1f2430;
+}
+
+/* .deploy-item:hover {
+  background: #151922;
+} */
+
+/* ฝั่งซ้าย */
+.left .id {
+  font-weight: 600;
+}
+
+.left .env {
+  font-size: 12px;
+  color: #888;
+}
+
+/* status */
+.status {
+  font-size: 14px;
+}
+
+.status.ready {
+  color: #00d084;
+}
+
+.status.error {
+  color: #ff4d4f;
+}
+
+/* project */
+.project {
+  font-weight: 500;
+}
+
+/* branch */
+.branch {
+  font-size: 14px;
+}
+
+.branch .commit {
+  font-size: 12px;
+  color: #888;
+}
+
+/* time */
+.time {
+  font-size: 13px;
+  color: #aaa;
 }

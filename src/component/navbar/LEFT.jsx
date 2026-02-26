@@ -1,17 +1,22 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Lottie from 'lottie-react'
 import animationData from '../../icon/Menu-white.json'
+import Order from '../../icon/Order.json'
+import Dashbarod from '../../icon/Dashbaord.json'
+import Product from '../../icon/Product.json'
 
 export default function LEFT({ current, onNavigate }) {
 
     const items = [
+        { id: 'Dashboard', label: 'Dashboard', icons: Dashbarod, },
+        { id: 'Product', label: 'ສະຕ໋ອກສີນຄ້າ', icons: Product },
+        { id: 'Order', label: 'ອໍເດີ້', icons: Order },
         { id: 'users', label: 'Users' },
         { id: 'create-user', label: 'Create User' },
     ]
 
     function onLogout() {
-        localStorage.removeItem('data')
-        localStorage.removeItem('user')
+        localStorage.clear();
         window.location.reload(false)
     }
 
@@ -30,7 +35,7 @@ export default function LEFT({ current, onNavigate }) {
         setIsOpen(!isOpen);
     };
 
-    const raw = JSON.parse(localStorage.getItem('data')).fullname
+    const raw = JSON.parse(localStorage.getItem('data'))
 
     return (
         <>
@@ -41,10 +46,10 @@ export default function LEFT({ current, onNavigate }) {
                     className='menu-icon'
                     animationData={animationData}
                     loop={false}
-                    autoplay={false}
+                    autoplay={true}
                     style={{ width: 40, borderLeft: '0.5px solid #2f30312a' }}
                 />
-                <hr style={{ margin: '0 10px', borderColor: '#ffffff28' }} />
+                <hr style={{ margin: '6px 10px', borderColor: '#ffffff28' }} />
                 <div style={{ fontWeight: 'bold', marginTop: 5, marginLeft: 10 }}>{raw}</div>
                 <div className='closs' onClick={handleClick} style={{ display: menuOpen ? 'block' : 'none' }}></div>
             </div>
@@ -61,6 +66,7 @@ export default function LEFT({ current, onNavigate }) {
                                 handleClick()
                             }}
                             style={{
+                                display: 'flex',
                                 flex: '1',
                                 textAlign: 'left',
                                 padding: '8px 10px',
@@ -72,7 +78,15 @@ export default function LEFT({ current, onNavigate }) {
                                 cursor: 'pointer',
                             }}
                         >
-                            {it.label}
+                            <Lottie
+                                className='menu-icon'
+                                animationData={it.icons}
+                                loop={false}
+                                autoplay={true}
+                                style={{ width: 20, borderLeft: '0.5px solid #2f30312a' }}
+                            />
+                            <hr style={{ margin: '4px 6px', borderColor: '#ffffff28' }} />
+                            <span style={{ marginLeft: '6px' }}>{it.label}</span>
                         </button>
                     ))}
                 </nav>

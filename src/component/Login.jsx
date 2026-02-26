@@ -26,7 +26,8 @@ export default function Login({ onUser }) {
       setUser(data)
       try {
         onUser?.(data)
-        localStorage.setItem('data', JSON.stringify(data))
+        localStorage.setItem('data', JSON.stringify(data.fullname))
+        localStorage.setItem('data_id', JSON.stringify(data.id))
       } catch (err) {
         console.warn('onUser callback error', err)
       }

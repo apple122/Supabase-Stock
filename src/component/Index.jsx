@@ -4,11 +4,12 @@ import Auth from '../Auth'
 import GET_Users from './users/GET_Users'
 import PostUser from './users/PostUser'
 import LEFT from './navbar/LEFT'
+import Product from './Product/Product'
 
 export default function Index() {
 
     const [session, setSession] = useState(null);
-    const [route, setRoute] = useState('users')
+    const [route, setRoute] = useState('Product')
 
     useEffect(() => {
         // Get current session (Supabase v2)
@@ -31,6 +32,8 @@ export default function Index() {
             <LEFT current={route} onNavigate={setRoute} />
 
             <main className="main-content" style={{ padding: 20 }}>
+                {route === 'Dashboard' && 'Dashboard'}
+                {route === 'Product' && <Product />}
                 {route === 'users' && <GET_Users />}
                 {route === 'create-user' && <PostUser />}
             </main>
