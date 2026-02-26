@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 import React, { useRef, useState } from 'react'
 import plus from '../../icon/plus.png'
 import reload from '../../icon/refresh.json'
 import { supabase } from '../../supabaseClient'
 import success from '../../icon/success.json'
 import Lottie from 'lottie-react'
-=======
-import React from 'react'
-import plus from '../../icon/plus.png'
->>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
 
 export default function POST_Product({ cant_data }) {
 
@@ -16,7 +11,6 @@ export default function POST_Product({ cant_data }) {
         cant_data?.(false);
     }
 
-<<<<<<< HEAD
     const [proName, setProName] = useState("")
     const [quantity, setQuantity] = useState("")
     const [imageFile, setImageFile] = useState(null)
@@ -121,17 +115,6 @@ export default function POST_Product({ cant_data }) {
                 <div className="project">
                     <span style={{ fontSize: '14px' }}>ສະຕ໋ອກສີນຄ້າ / ບັນທືຂໍ້ມູນສິນຄ້າ</span>
                 </div>
-=======
-    return (
-        <div style={{ marginTop: 16 }}>
-            <div className="deploy-item-header" style={{ display: 'flex', alignItems: 'center', marginBottom: 2, gap: 8 }}>
-                <button className="button" onClick={Add_click} style={{ padding: '2px 4px' }}>
-                    {/* <img src={plus} alt="Add" style={{ width: 12, marginRight: 8, color: '#ffffff' }} /> */}
-                    Cancel
-                </button>
-
-                <div className="project"> </div>
->>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
 
                 <div className="branch">
                     <div className="commit"> </div>
@@ -143,7 +126,6 @@ export default function POST_Product({ cant_data }) {
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
                 <div className="grid-colum-2" style={{ marginBottom: 2, gap: 8 }}>
@@ -194,8 +176,6 @@ export default function POST_Product({ cant_data }) {
                     </div>
                 </div>
             </form>
-=======
->>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
         </div>
     )
 }
