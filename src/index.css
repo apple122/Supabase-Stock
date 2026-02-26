@@ -539,6 +539,13 @@ button.primary,
   background-color: var(--custom-bg-color);
 }
 
+.deploy-item-header {
+  display: grid;
+  grid-template-columns: 20% 20% 15% 1fr 30%;
+  align-items: center;
+  padding: 0;
+}
+
 .deploy-item {
   display: grid;
   grid-template-columns: 20% 20% 15% 1fr 30%;
