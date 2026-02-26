@@ -74,7 +74,7 @@ export default function GET_Product({ add_data }) {
             {loading ? (
                 <p>Loading...</p>
             ) : users.length === 0 ? (
-                <p>No users found.</p>
+                <p>No data found.</p>
             ) : (
                 <div class="deploy-list">
                     {users.map((u) => (
