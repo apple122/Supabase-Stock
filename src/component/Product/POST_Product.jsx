@@ -79,7 +79,7 @@ export default function POST_Product({ cant_data }) {
             alert("ບັນທືໍກຂໍ້ມູນສິນຄ້າບໍ່ໄດ້")
             console.log(insertError)
         } else {
-            alert("ເພີ່ມສິນຄ້າສຳເລັດແລ້ວ ✅")
+            alert("ເພີ່ມສິນຄ້າສຳເລັດແລ້ວ✅")
             cant_data?.(false);
         }
 
