@@ -24,8 +24,12 @@ export default function useFunctions() {
                         fullname,
                         email
                     )
+<<<<<<< HEAD
                 `)
                 .order("created_at", { ascending: false }) // order by created_at descending
+=======
+                `);
+>>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
 
             if (error) throw error
             setUsers(data || [])

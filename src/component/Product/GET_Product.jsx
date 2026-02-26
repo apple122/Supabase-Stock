@@ -36,7 +36,11 @@ export default function GET_Product({ add_data }) {
             <div className="deploy-item-header" style={{ display: 'flex', alignItems: 'center', marginBottom: 2, gap: 8 }}>
                 <button className="button" onClick={Add_click} disabled={loading} style={{ padding: '2px 4px' }}>
                     <img src={plus} alt="Add" style={{ width: 12, marginRight: 8, color: '#ffffff' }} />
+<<<<<<< HEAD
                     ເພີມສີນຄ້າ
+=======
+                    Add Product
+>>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
                 </button>
                 <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <button className="button" onClick={() => {
@@ -80,7 +84,12 @@ export default function GET_Product({ add_data }) {
                     {users.map((u) => (
                         <div class="deploy-item">
                             <div class="left">
+<<<<<<< HEAD
                                 <img src={u.pro_img} style={{ width: 40, height: 40, marginTop: 2, borderRadius: 4, objectFit: 'cover' }} />
+=======
+                                <div class="id">IMG</div>
+                                <div class="env">Production</div>
+>>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
                             </div>
 
                             <div class="project">{u.pro_name}</div>
@@ -89,15 +98,24 @@ export default function GET_Product({ add_data }) {
                                 <div class="commit">ຈຳນວນ</div>
                                 <div>{u.quantity}</div>
                             </div>
+<<<<<<< HEAD
                             <div class="branch">
                                 <spn class='commit'>ຈັດການ</spn>
+=======
+                            <div class="status ready">
+                                ● Ready
+>>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
                             </div>
                             <div class="time">
                                 <div class="commit" style={{ display: 'flex' }}>
                                     {u.created_at ? new Date(u.created_at).toLocaleString() : '-'}
                                     <hr style={{ margin: '6px 10px', borderColor: '#ffffff28' }} />
+<<<<<<< HEAD
                                     {u.user?.fullname || '-'}
                                 </div>
+=======
+                                    {u.user?.fullname || '-'}</div>
+>>>>>>> 1234b1dff97f49113cd3086a99f37d8c8a8c47ae
                             </div>
                         </div>
                     ))}
