@@ -462,6 +462,10 @@ button.primary,
 
 @media (min-width: 720px) {
 
+  .width-100 {
+    width: 100%;
+  }
+
   .upload-container {
     width: 350px;
   }
@@ -480,11 +484,27 @@ button.primary,
     color: #aaa;
   }
 
+  .flex-display {
+    display: flex;
+  }
+
+  .span-250 {
+    width: 150px;
+  }
+
 }
 
 @media (max-width: 720px) {
   .app-layout {
     flex-direction: column;
+  }
+
+  .span-250 {
+    width: 100%;
+  }
+
+  .flex-display {
+    display: grid;
   }
 
   .deploy-item {
@@ -742,4 +762,23 @@ button.primary,
   object-fit: cover;
 }
 
-/* option */
+/* Color */
+.hover-plus:hover {
+  background-color: #ff9c236c;
+  transition: all 0.2s ease;
+  border: none;
+}
+.hover-closs:hover {
+  background-color: #ff646441;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+
+.swal-content__input {
+  color: black !important;   /* สีข้อความที่พิมพ์ */
+}
+
+.swal-content__input::placeholder {
+  color: #555 !important;    /* สี placeholder (ถ้าต้องการ) */
+}

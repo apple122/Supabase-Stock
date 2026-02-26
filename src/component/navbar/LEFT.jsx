@@ -9,6 +9,7 @@ export default function LEFT({ current, onNavigate }) {
 
     const items = [
         { id: 'Dashboard', label: 'Dashboard', icons: Dashbarod, },
+        { id: 'Category', label: 'ປະເພດສິນຄ້າ', icons: Dashbarod },
         { id: 'Product', label: 'ສະຕ໋ອກສີນຄ້າ', icons: Product },
         { id: 'Order', label: 'ອໍເດີ້', icons: Order },
         { id: 'users', label: 'Users' },

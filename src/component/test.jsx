@@ -1,25 +1,17 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+// import useFunctions from './usefunctions'
+// import GET_Product from './GET_Product'
+// import POST_Product from './POST_Product'
 
 export default function Test() {
-    return (
-        <>
-            <div class="">
-                name
-                <div class="container text-center">
-                    <div class="row">
-                        <div class="col">
-                            Column
-                        </div>
-                        <div class="col">
-                            Column
-                        </div>
-                        <div class="col">
-                            Column
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-        </>
+    const [Add, setAdd] = useState(false);
+
+    return (
+        <></>
+        // <div style={{ marginTop: 16 }}>
+        //     <h3>ສະຕ໋ອກສີນຄ້າ</h3>
+        //     {Add && true ? <POST_Product cant_data={setAdd} /> : <GET_Product add_data={setAdd} />}
+        // </div>
     )
 }
