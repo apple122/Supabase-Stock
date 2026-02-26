@@ -466,6 +466,20 @@ button.primary,
     width: 350px;
   }
 
+  .deploy-item {
+    display: grid;
+    grid-template-columns: 20% 20% 15% 1fr 30%;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #1f2430;
+  }
+
+  /* time */
+  .time {
+    font-size: 10px;
+    color: #aaa;
+  }
+
 }
 
 @media (max-width: 720px) {
@@ -473,8 +487,18 @@ button.primary,
     flex-direction: column;
   }
 
-  .upload-container {
-    /* width: auto; */
+  .deploy-item {
+    display: grid;
+    grid-template-columns: 20% 1fr 20%;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #1f2430;
+  }
+
+  /* time */
+  .time {
+    font-size: 8px;
+    color: #aaa;
   }
 
   .grid-colum-2 {
@@ -594,21 +618,6 @@ button.primary,
   background-color: var(--custom-bg-color);
 }
 
-.deploy-item-header {
-  display: grid;
-  grid-template-columns: 20% 20% 15% 1fr 30%;
-  align-items: center;
-  padding: 0;
-}
-
-.deploy-item {
-  display: grid;
-  grid-template-columns: 20% 20% 15% 1fr 30%;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #1f2430;
-}
-
 /* .deploy-item:hover {
   background: #151922;
 } */
@@ -649,12 +658,6 @@ button.primary,
 .branch .commit {
   font-size: 12px;
   color: #888;
-}
-
-/* time */
-.time {
-  font-size: 13px;
-  color: #aaa;
 }
 
 /* POST Product  */
@@ -738,3 +741,5 @@ button.primary,
   height: 100%;
   object-fit: cover;
 }
+
+/* option */

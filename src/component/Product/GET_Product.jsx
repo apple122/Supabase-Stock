@@ -90,7 +90,7 @@ export default function GET_Product({ add_data }) {
                                 <div>{u.quantity}</div>
                             </div>
                             <div class="branch">
-                                <spn class='commit'>ຈັດການ</spn>
+                                <button class="commit" style={{ border: 'none'}}>ຈັດການ</button>
                             </div>
                             <div class="time">
                                 <div class="commit" style={{ display: 'flex' }}>
