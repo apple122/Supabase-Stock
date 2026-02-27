@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Lottie from 'lottie-react'
 import animationData from '../../icon/Menu-white.json'
-import Order from '../../icon/Order.json'
-import Dashbarod from '../../icon/Dashbaord.json'
-import Product from '../../icon/Product.json'
+import Hash from '../../icon/category.png'
+import order from '../../icon/order.png'
+import Dashbarod from '../../icon/grapic.png'
+import Product from '../../icon/Product.png'
 
 export default function LEFT({ current, onNavigate }) {
 
     const items = [
         { id: 'Dashboard', label: 'Dashboard', icons: Dashbarod, },
-        { id: 'Category', label: 'ປະເພດສິນຄ້າ', icons: Dashbarod },
+        { id: 'Category', label: 'ປະເພດສິນຄ້າ', icons: Hash },
         { id: 'Product', label: 'ສະຕ໋ອກສີນຄ້າ', icons: Product },
-        { id: 'Order', label: 'ອໍເດີ້', icons: Order },
+        { id: 'Order', label: 'ອໍເດີ້', icons: order },
         { id: 'users', label: 'Users' },
         { id: 'create-user', label: 'Create User' },
     ]
@@ -79,13 +80,7 @@ export default function LEFT({ current, onNavigate }) {
                                 cursor: 'pointer',
                             }}
                         >
-                            <Lottie
-                                className='menu-icon'
-                                animationData={it.icons}
-                                loop={false}
-                                autoplay={true}
-                                style={{ width: 20, borderLeft: '0.5px solid #2f30312a' }}
-                            />
+                            <img src={it.icons} style={{ width: 20, height: 20, borderLeft: '0.5px solid #2f30312a' }} />
                             <hr style={{ margin: '4px 6px', borderColor: '#ffffff28' }} />
                             <span style={{ marginLeft: '6px' }}>{it.label}</span>
                         </button>
