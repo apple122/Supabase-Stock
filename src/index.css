@@ -932,7 +932,7 @@ option {
 /* Order items layout (used in POST_Order.jsx) */
 .order-item {
   display: grid;
-  grid-template-columns: auto auto auto 1fr 80px;
+  grid-template-columns: auto 1fr auto;
   gap: 12px;
   align-items: center;
   padding: 10px;
@@ -1007,4 +1007,32 @@ option {
     justify-content: space-between;
     align-items: center;
   }
+}
+
+/* Order   */
+.gid-colum-select {
+  position: relative;
+  border: 0.5px solid #333;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.label-absolute {
+  position: absolute;
+  top: -17px;
+  left: 12px;
+  background-color: #000000;
+  padding: 0 4px;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 0.3px solid #ffffff28;
+  background-color: var(--custom-bg-color);
+  border-radius: 4px;
+  outline: none;
+  transition: 0.3s;
+  resize: vertical;
 }

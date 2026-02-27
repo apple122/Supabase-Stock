@@ -1,13 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../supabaseClient'
 
-export default function POST_Order() {
+export default function POST_Order({ cant_data }) {
     const [products, setProducts] = useState([])
     const [selectedId, setSelectedId] = useState('')
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [selectedQty, setSelectedQty] = useState(1)
     const [orderItems, setOrderItems] = useState([])
     const ddRef = useRef()
+    const [pmType, setPmType] = useState('ຍັງບໍ່ທັນຈ່າຍ')
+    const [promoUnitPrice, setPromoUnitPrice] = useState('')
+    const [recipientName, setRecipientName] = useState('')
+    const [recipientPhone, setRecipientPhone] = useState('')
+    const [recipientBranch, setRecipientBranch] = useState('')
+    const [recipientAddress, setRecipientAddress] = useState('')
+    const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
         async function fetchProducts() {
@@ -25,6 +32,10 @@ export default function POST_Order() {
         fetchProducts()
     }, [])
 
+    function getProductById(id) {
+        return products.find(p => String(p.id) === String(id))
+    }
+
     // close dropdown on outside click
     useEffect(() => {
         function handleDoc(e) {
@@ -36,20 +47,28 @@ export default function POST_Order() {
 
     function addProduct(prod, qty = 1) {
         if (!prod) return
+        const stock = Number(prod.quantity) || 0
         setOrderItems(items => {
             const exist = items.find(i => String(i.id) === String(prod.id))
             if (exist) {
-                return items.map(i => i.id === prod.id ? { ...i, qty: i.qty + qty } : i)
+                const desired = (exist.qty || 0) + qty
+                const newQty = desired > stock ? stock : desired
+                return items.map(i => String(i.id) === String(prod.id) ? { ...i, qty: newQty } : i)
             }
-            return [...items, { id: prod.id, name: prod.pro_name, price: prod.sell_price || 0, qty }]
+            const initialQty = qty > stock ? stock : qty
+            if (initialQty <= 0) return items
+            return [...items, { id: prod.id, name: prod.pro_name, price: prod.sell_price || 0, qty: initialQty }]
         })
     }
 
     function changeQty(id, delta) {
         setOrderItems(items => {
+            const prod = getProductById(id)
+            const stock = Number(prod?.quantity) || 0
             return items.reduce((acc, it) => {
                 if (String(it.id) === String(id)) {
-                    const newQty = (it.qty || 0) + delta
+                    let newQty = (it.qty || 0) + delta
+                    if (newQty > stock) newQty = stock
                     if (newQty > 0) acc.push({ ...it, qty: newQty })
                     // if newQty <= 0 we drop the item
                 } else acc.push(it)
@@ -59,22 +78,102 @@ export default function POST_Order() {
     }
 
     function setItemQty(id, qty) {
-        const n = Number(qty) || 0
+        let n = Number(qty) || 0
+        const prod = getProductById(id)
+        const stock = Number(prod?.quantity) || 0
         if (n <= 0) {
             setOrderItems(items => items.filter(i => String(i.id) !== String(id)))
             return
         }
-        setOrderItems(items => items.map(i => i.id === id ? { ...i, qty: n } : i))
+        if (n > stock) n = stock
+        setOrderItems(items => items.map(i => String(i.id) === String(id) ? { ...i, qty: n } : i))
     }
+    const totalQty = orderItems.reduce((s, it) => s + (Number(it.qty) || 0), 0)
+    const promoUnit = Number(promoUnitPrice) || 0
+    const totalSale = orderItems.reduce((s, it) => {
+        const unit = Number(it.price) || 0
+        const qty = Number(it.qty) || 0
+        const effective = promoUnit > 0 ? promoUnit : unit // if promo provided, use promo price per piece
+        return s + effective * qty
+    }, 0)
+
+    // POST Order to Supabase
+    async function submitOrder() {
+        if (!orderItems || orderItems.length === 0) {
+            alert('ไม่มีรายการสินค้า')
+            return
+        }
+
+        setSubmitting(true)
+
+        try {
+            const addressArr = [
+                recipientName,
+                recipientPhone,
+                recipientBranch,
+                recipientAddress
+            ]
+
+            // 1️⃣ Insert Order ก่อน
+            const { data: orderData, error: orderError } = await supabase
+                .from('Order')
+                .insert([{
+                    pm_type: pmType,
+                    sale_price: totalSale,
+                    total_qty: totalQty,
+                    address: addressArr,
+                    readme: 'ຍັງບໍ່ທັນຈັດສົ່ງ',
+                }])
+                .select()
+                .single()
+
+            if (orderError) throw orderError
+
+            const orderId = orderData.id
+
+            // 2️⃣ เตรียม OrderItem หลายแถว
+            const itemsPayload = orderItems.map(item => ({
+                order_id: orderId,
+                pro_id: item.id,
+                qty: item.qty,
+                price: promoUnit > 0 ? promoUnit : item.price
+            }))
+
+            // 3️⃣ Insert OrderItem
+            const { error: itemError } = await supabase
+                .from('OrderItem')
+                .insert(itemsPayload)
+
+            if (itemError) throw itemError
+
+            alert('สร้างออเดอร์เรียบร้อย')
+
+            // reset
+            setOrderItems([])
+            setRecipientName('')
+            setRecipientPhone('')
+            setRecipientBranch('')
+            setRecipientAddress('')
+            setPromoUnitPrice('')
+            setPmType('ຍັງບໍ່ທັນຈ່າຍ')
+
+        } catch (err) {
+            console.error('submitOrder', err)
+            alert('ເກີດຂໍ້ຜິດພາດ: ' + (err.message || JSON.stringify(err)))
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
     return (
         <div style={{ marginTop: 16, zIndex: 1 }}>
             <div className="deploy-item-header" style={{ display: 'flex', alignItems: 'center', marginBottom: 2, gap: 8 }}>
-                <button className="button" style={{ padding: '2px 4px' }}>
+                <button className="button" onClick={() => cant_data(false)} style={{ padding: '2px 4px' }}>
                     <span> {'<'} ຍ້ອນກັບ </span>
                 </button>
 
                 <div className="project">
-                    <span style={{ fontSize: '14px' }}>ສະຕ໋ອກສີນຄ້າ / ບັນທືຂໍ້ມູນສິນຄ້າ</span>
+                    <span style={{ fontSize: '14px' }}>ລາຍການຂາຍ / ບັນທືຂໍ້ມູນສິນຄ້າຂາຍ</span>
                 </div>
 
                 <div className="branch">
@@ -88,13 +187,14 @@ export default function POST_Order() {
                 </div>
             </div>
 
-            <form style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }} onSubmit={(e) => e.preventDefault()}>
+            {/* Select product to order:  */}
+            <div className='gid-colum-select' style={{ display: 'flex', flexDirection: 'column', marginTop: 16 }} >
+                <label className='label-absolute' style={{ fontSize: 12, color: '#999' }}>ເລືອກສິນຄ້າ ແລະ ຈຳນວນ</label>
                 <div className="grid-colum-2" style={{ marginBottom: 2, gap: 8, display: 'flex', alignItems: 'flex-end' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-                        <label style={{ fontSize: 12, color: '#aaa' }}>เลือกสินค้า</label>
                         <div style={{ position: 'relative' }} ref={ddRef}>
                             <button type="button" className="button" onClick={() => setDropdownOpen(s => !s)} style={{ width: '100%', textAlign: 'left', padding: 8, borderRadius: 6 }}>
-                                {selectedId ? (products.find(p => String(p.id) === String(selectedId))?.pro_name || 'เลือกสินค้า') : '-- เลือกสินค้า --'}
+                                {selectedId ? (products.find(p => String(p.id) === String(selectedId))?.pro_name || 'ເລືອກສິນຄ້າ') : '-- ເລືອກສິນຄ້າ --'}
                             </button>
                             {dropdownOpen && (
                                 <ul style={{ position: 'absolute', zIndex: 50, left: 0, right: 0, maxHeight: 260, overflow: 'auto', margin: 0, padding: 8, listStyle: 'none', background: '#0f0f0f', border: '1px solid #222', borderRadius: 6 }}>
@@ -113,41 +213,122 @@ export default function POST_Order() {
                     </div>
                 </div>
 
-                <div style={{ marginTop: 8 }}>
-                    <h4 style={{ margin: '6px 0' }}>รายการสินค้า</h4>
-                    {orderItems.length === 0 ? <div style={{ color: '#999' }}>ยังไม่มีรายการ</div> : (
+                <div>
+                    <h4 style={{ margin: '6px 0' }}>ລາຍການສີນຄ້າ</h4>
+                    {orderItems.length === 0 ? <div style={{ color: '#999' }}>ຍັງບໍ່ມີລາຍການ</div> : (
                         <div style={{ display: 'grid', gap: 8 }}>
                             {orderItems.map(item => (
                                 <div key={item.id} className="order-item">
-                                    <div className="thumb">
-                                        <img src={products.find(p => String(p.id) === String(item.id))?.pro_img} alt={item.name} />
+                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                        <div className="thumb">
+                                            <img src={products.find(p => String(p.id) === String(item.id))?.pro_img} alt={item.name} />
+                                        </div>
+
+                                        <div className="meta">
+                                            <div className="meta-title">{item.name}</div>
+                                            <div className="meta-price">{Number(item.price).toLocaleString()} ₭</div>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
+                                        <div className='flex-display' style={{ gap: 8, alignItems: 'center' }}>
+                                            <div className="subtotal" style={{ fontSize: 24 }}>{(item.qty * item.price).toLocaleString()} ₭</div>
+                                            <div className="qty" style={{ display: 'flex', alignItems: 'flex-end', gap: 4 }}>
+                                                <button type="button" className="button" style={{ padding: 1, height: 20, width: 20 }} onClick={() => changeQty(item.id, -1)}><span>-</span></button>
+                                                <input
+                                                    type=""
+                                                    min={1}
+                                                    max={products.find(p => String(p.id) === String(item.id))?.quantity || undefined}
+                                                    value={item.qty}
+                                                    style={{ padding: 1, height: 20, textAlign: 'center' }}
+                                                    onChange={(e) => setItemQty(item.id, e.target.value)}
+                                                />
+                                                <button type="button" className="button" style={{ padding: 1, height: 20, width: 20 }} onClick={() => changeQty(item.id, 1)}><span>+</span></button>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ marginLeft: 20 }}>
+                                            <button className="button" onClick={() => setOrderItems(items => items.filter(i => i.id !== item.id))}>ลบ</button>
+                                        </div>
                                     </div>
 
-                                    <div className="meta">
-                                        <div className="meta-title">{item.name}</div>
-                                        <div className="meta-price">{Number(item.price).toLocaleString()} ₭</div>
-                                    </div>
-
-                                    <div className="qty" style={{ display: 'flex', alignItems: 'flex-end', gap: 4 }}>
-                                        <button type="button" className="button" style={{ padding: 4, height: 30, width: 30 }} onClick={() => changeQty(item.id, -1)}>-</button>
-                                        <input value={item.qty} style={{ padding: 4, height: 30 }} onChange={(e) => setItemQty(item.id, e.target.value)} />
-                                        <button type="button" className="button" style={{ padding: 4, height: 30, width: 30 }} onClick={() => changeQty(item.id, 1)}>+</button>
-                                    </div>
-
-                                    <div className="summary">
-                                        <div className="subtotal">{(item.qty * item.price).toLocaleString()} ₭</div>
-                                    </div>
-
-                                    <div className="summary">
-                                        <button className="button" onClick={() => setOrderItems(items => items.filter(i => i.id !== item.id))}>ลบ</button>
-                                    </div>
                                 </div>
                             ))}
                         </div>
                     )}
                 </div>
-            </form>
+            </div>
 
+            {/* Input for customer info, payment method, etc. can go here */}
+            <div className='form-order' style={{ display: 'grid', gap: 8, marginTop: 12 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <label style={{ width: 120, color: '#999' }}>ວິທີ່ສຳລະ</label>
+                    <select
+                        value={pmType}
+                        onChange={e => setPmType(e.target.value)}
+                        style={{ padding: 6, background: '#0f0f0f', color: '#fff', border: '1px solid #222' }}
+                    >
+                        <option value="ຍັງບໍ່ທັນຈ່າຍ" style={{ background: '#0f0f0f', color: '#fff' }}>ຍັງບໍ່ທັນຈ່າຍ</option>
+                        <option value="ໂອນ" style={{ background: '#0f0f0f', color: '#fff' }}>ໂອນ</option>
+                        <option value="ສົດ" style={{ background: '#0f0f0f', color: '#fff' }}>ສົດ</option>
+                    </select>
+                </div>
+                
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <label style={{ width: 120, color: '#999' }}>ຈຳນວນລວມ</label>
+                    <input value={totalQty} readOnly style={{ padding: 6, width: 120, textAlign: 'center' }} />
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <label style={{ width: 120, color: '#999' }}>ໂປຣ/ລາຄາຕໍ່ຊີ້ນ</label>
+                    <input
+                        type="number"
+                        min={0}
+                        placeholder="ລາຄາໂປຣຕໍ່ຊີ້ນ (ບໍ່ບັງຄັບ, ຖ້າປ່ອນ 0 ຫຼື ປ່ອນຫວ່າງແທນ, ລາຄາຈະເປັນລາຄາປົກການ)"
+                        value={promoUnitPrice}
+                        onChange={e => setPromoUnitPrice(e.target.value)}
+                        style={{ padding: 6, width: 180, textAlign: 'right' }}
+                    />
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <label style={{ width: 120, color: '#999' }}>ເງີນລວມ</label>
+                    <input value={totalSale ? Number(totalSale).toLocaleString() + ' ₭' : '0 ₭'} readOnly style={{ padding: 6, flex: 1, textAlign: 'right' }} />
+                </div>
+
+
+                <fieldset style={{ border: '1px solid #222', padding: 8, borderRadius: 6 }}>
+                    <legend style={{ color: '#999' }}>ຂໍ້ມູນການຈັດສົ່ງ</legend>
+                    <div style={{ display: 'grid', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <label style={{ width: 120, color: '#999' }}>ຊື່ຜູ້ຮັບ</label>
+                            <input value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="ຊື່" style={{ padding: 6, flex: 1 }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <label style={{ width: 120, color: '#999' }}>ເບີໂທ</label>
+                            <input value={recipientPhone} onChange={e => setRecipientPhone(e.target.value)} placeholder="ເບີໂທ" style={{ padding: 6, flex: 1 }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <label style={{ width: 120, color: '#999' }}>ສົ່ງສາຂາ</label>
+                            <input value={recipientBranch} onChange={e => setRecipientBranch(e.target.value)} placeholder="ສາຂາ" style={{ padding: 6, flex: 1 }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <label style={{ width: 120, color: '#999' }}>ທີ່ຢູ່</label>
+                            <textarea value={recipientAddress} onChange={e => setRecipientAddress(e.target.value)} placeholder="ທີ່ຢູ່ສຳລັບຈັດສົ່ງ" style={{ padding: 6, flex: 1, minHeight: 64 }} />
+                        </div>
+                    </div>
+                </fieldset>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                    <button
+                        type="button"
+                        className="button"
+                        onClick={submitOrder}
+                        disabled={submitting || orderItems.length === 0}
+                        style={{ padding: '8px 12px' }}
+                    >
+                        {submitting ? 'กำลังส่ง...' : 'บันทึก / สร้างออเดอร์'}
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }
