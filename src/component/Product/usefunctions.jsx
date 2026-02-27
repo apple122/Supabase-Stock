@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../../supabaseClient'
+import swal from 'sweetalert';
 
 export default function useFunctions() {
 
@@ -44,6 +45,33 @@ export default function useFunctions() {
         }
     }
 
+    const handleDelete = async (item) => {
+        const willDelete = await swal({
+            title: 'ຕ້ອງການລົບຂໍ້ມູນ ຫຼື ບໍ່?',
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        });
+
+        if (!willDelete) {
+            // swal("Your data is safe!");
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from("Product")
+            .delete()
+            .eq("id", item['id']);
+
+        if (error) {
+            console.error(error);
+            swal("Delete failed!", { icon: "error" });
+        } else {
+            fetchUsers();
+            swal("ລົບຂໍ້ມູນສຳເລັດ!", { icon: "success" });
+        }
+    };
+
     useEffect(() => {
         fetchUsers()
     }, [])
@@ -51,6 +79,8 @@ export default function useFunctions() {
     return {
         users,
         loading,
-        fetchUsers
+        fetchUsers,
+
+        handleDelete
     }
 }

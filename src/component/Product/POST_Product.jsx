@@ -268,7 +268,7 @@ export default function POST_Product({ cant_data }) {
                 <div className='reload'>
                     <Lottie
                         // lottieRef={lottieRef}
-                        className='menu-icon'
+                        className='menu-icon laod-icon'
                         animationData={loading_animations}
                         loop={true}
                         style={{ width: '100%' }}
