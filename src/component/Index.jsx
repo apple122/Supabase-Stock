@@ -32,7 +32,7 @@ export default function Index() {
         <>
             <LEFT current={route} onNavigate={setRoute} />
 
-            <main className="main-content" style={{ padding: 20 }}>
+            <main className="main-content" style={{ paddingRight: 20, paddingLeft: 20, paddingTop: 0, paddingBottom: 20, overflowY: 'auto' }}>
                 {route === 'Dashboard' && 'Dashboard'}
                 {route === 'Category' && <Index_CGR />}
                 {route === 'Product' && <Product />}
