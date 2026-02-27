@@ -1,8 +1,10 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import swal from 'sweetalert';
 import plus from '../../icon/plus.png'
 import reload from '../../icon/refresh.json'
 import { supabase } from '../../supabaseClient'
 import success from '../../icon/success.json'
+import loading_animations from '../../icon/loading.json'
 import Lottie from 'lottie-react'
 
 export default function POST_Product({ cant_data }) {
@@ -11,10 +13,39 @@ export default function POST_Product({ cant_data }) {
         cant_data?.(false);
     }
 
+    const [GC, setGC] = useState([])
+    const [Loadata, setLoadata] = useState(false)
+
+    const fetchCG = async () => {
+        try {
+            setLoadata(true)
+            const { data, error } = await supabase
+                .from('Category') // schema-qualified table
+                .select(`id, name, created_at`)
+                .order("created_at", { ascending: false }) // order by created_at descending
+
+            if (error) throw error
+            setGC(data || [])
+        } catch (err) {
+            console.error('Failed to fetch ap_system.Category:', err)
+            alert(err.message || err.error_description || 'Failed to fetch Category')
+        } finally {
+            setLoadata(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchCG()
+    }, [])
+
     const [proName, setProName] = useState("")
     const [quantity, setQuantity] = useState("")
+    const [SKU, setSKU] = useState("")
+    const [cost_price, setcost_price] = useState("")
+    const [price, setPrice] = useState("")
     const [imageFile, setImageFile] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [cate_id, setcate_id] = useState(null)
 
     const [imagePreview, setImagePreview] = useState(null)
 
@@ -26,8 +57,17 @@ export default function POST_Product({ cant_data }) {
         setImagePreview(imageUrl)
     }
 
+    const Options = (e) => {
+        setcate_id(e.target.value)
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
+        if (!cate_id) {
+            alert("ກະລຸນາເລືອກປະເພດສີນຄ້າ")
+            return
+        }
+
         if (!imageFile) {
             alert("ກະລຸນາເລືອກຮູບສິນຄ້າ")
             return
@@ -71,6 +111,10 @@ export default function POST_Product({ cant_data }) {
             .insert({
                 pro_name: proName,
                 pro_img: imageUrl,
+                cate_id: Number(cate_id),
+                sku: SKU,
+                cost_price: Number(cost_price),
+                sell_price: Number(price),
                 quantity: Number(quantity),
                 user: localStorage.getItem('data_id')
             })
@@ -79,7 +123,10 @@ export default function POST_Product({ cant_data }) {
             alert("ບັນທືໍກຂໍ້ມູນສິນຄ້າບໍ່ໄດ້")
             console.log(insertError)
         } else {
-            alert("ເພີ່ມສິນຄ້າສຳເລັດແລ້ວ✅")
+            swal({
+                title: "ເພີມສີນຄ້າສຳເລັດແລ້ວ✅",
+                icon: "success",
+            });
             cant_data?.(false);
         }
 
@@ -87,6 +134,9 @@ export default function POST_Product({ cant_data }) {
         setImageFile(null)
         setProName("")
         setQuantity("")
+        setSKU("")
+        setcost_price("")
+        setPrice("")
     }
 
     const [isOpen, setIsOpen] = useState(false);
@@ -102,7 +152,10 @@ export default function POST_Product({ cant_data }) {
         setImageFile(null)
         setImagePreview(null)
         setProName("")
-        setQuantity("") 
+        setQuantity("")
+        setSKU("")
+        setcost_price("")
+        setPrice("")
     }
 
     return (
@@ -149,13 +202,47 @@ export default function POST_Product({ cant_data }) {
                     </div>
 
                     <div className="project" style={{ display: 'grid', gap: 8 }}>
-                        <div className="input-group">
-                            <input type="text" onChange={(e) => setProName(e.target.value)} value={proName} placeholder=" " required />
-                            <label>ສິນຄ້າ</label>
+                        <div className='flex-display'>
+                            <select className="select-style" onChange={Options} style={{ background: 'none', borderRadius: 8, border: '0.3px solid #ffffff34' }} required>
+                                <option value={null}>ເລືອກປະເພດລາຍການ</option>
+                                {Loadata ? (
+                                    <p>Loading...</p>
+                                ) : GC.length === 0 ? (
+                                    <p>No data found.</p>
+                                ) : (
+                                    <>
+                                        {GC.map((u) => (
+                                            <option value={u.id}>{u.name}</option>
+                                        ))}
+
+                                    </>
+
+                                )}
+                            </select>
+                            <div className="input-group margin-l">
+                                <input type="text" onChange={(e) => setProName(e.target.value)} value={proName} placeholder=" " required />
+                                <label>ສິນຄ້າ</label>
+                            </div>
                         </div>
-                        <div className="input-group">
-                            <input type="number" onChange={(e) => setQuantity(e.target.value)} value={quantity} placeholder=" " required />
-                            <label>ຈຳນວນ</label>
+                        <div className='flex-display'>
+                            <div className="input-group">
+                                <input type="number" onChange={(e) => setQuantity(e.target.value)} value={quantity} placeholder=" " required />
+                                <label>ຈຳນວນ</label>
+                            </div>
+                            <div className="input-group margin-l">
+                                <input type="number" onChange={(e) => setcost_price(e.target.value)} value={cost_price} placeholder=" " required />
+                                <label>ຕົ້ນທຸນ</label>
+                            </div>
+                            <div className="input-group margin-l">
+                                <input type="text" onChange={(e) => setSKU(e.target.value)} value={SKU} placeholder="" required />
+                                <label>ລະຫັດສີນຄ້າ</label>
+                            </div>
+                        </div>
+                        <div className='flex-display'>
+                            <div className="input-group" style={{ width: '100%' }}>
+                                <input type="number" onChange={(e) => setPrice(e.target.value)} value={price} placeholder=" " required />
+                                <label>ລາຄາຂາຍ / ຕໍ່ຊີ້ນ</label>
+                            </div>
                         </div>
                         <div style={{ display: 'flex', gap: 8 }}>
                             <button className="button btn-submit" type="submit" disabled={loading} style={{ padding: '8px 16px', alignSelf: 'flex-start' }}>
@@ -177,6 +264,18 @@ export default function POST_Product({ cant_data }) {
                     </div>
                 </div>
             </form>
+            {loading ?
+                <div className='reload'>
+                    <Lottie
+                        // lottieRef={lottieRef}
+                        className='menu-icon'
+                        animationData={loading_animations}
+                        loop={true}
+                        style={{ width: '100%' }}
+                    />
+                </div>
+                : ""}
+
         </div>
     )
 }

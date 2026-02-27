@@ -10,32 +10,29 @@ export default function useFunctions() {
     const [message, setMessage] = useState()
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setLoadingPost(true)
-        setMessage(null)
-        try {
-            const { data, error } = await supabase
-                .from('Category')
-                .insert([{ name: Nane }])
-                .select()
+        const value = await swal({
+            title: `ເພີມລາຍການປະເພດສີນຄ້າ`,
+            content: 'input',
+            inputAttributes: {
+                style: "color: red"
+            }
+        });
 
-            if (error) throw error
-            setMessage('Category created successfully')
-            swal({
-                title: "ບັນທືກຂໍ້ມູນປະເພດສີນຄ້າສຳເລັດ!",
-                text: "success!",
-                icon: "success",
-                button: "OK!",
-            });
-            fetchCG()
-            setName('')
-        } catch (err) {
-            console.error('Insert failed:', err)
-            setMessage(err.message || 'Insert failed')
-        } finally {
-            setLoadingPost(false)
+        // ถ้ากด cancel หรือไม่กรอกอะไร
+        if (!value) return;
+
+        const { data, error } = await supabase
+            .from("Category")
+            .insert({ name: value })
+
+        if (error) {
+            console.error("ເກຶດຂໍ້ຜິດພາດບາງຢ່າງ error:", error);
+            swal("ເກຶດຂໍ້ຜິດພາດບາງຢ່າງ failed!", { icon: "error" });
+        } else {
+            swal("ບັນທືກຂໍ້ມູນສຳເລັດແລ້ວ successfully!", { icon: "success" });
+            fetchCG(); // รีเฟรชข้อมูล
         }
-    }
+    };
 
     // GET Data Category 
     const [GC, setGC] = useState([])
@@ -69,7 +66,7 @@ export default function useFunctions() {
         });
 
         if (!willDelete) {
-            swal("Your data is safe!");
+            // swal("Your data is safe!");
             return;
         }
 
@@ -90,7 +87,7 @@ export default function useFunctions() {
     // PUT Data Category 
     const updateCategory = async (e) => {
 
-        const value = await swal( {
+        const value = await swal({
             title: `ແກ້ໄຂຂໍ້ມູນ: ${e[1]}`,
             content: 'input',
             inputAttributes: {

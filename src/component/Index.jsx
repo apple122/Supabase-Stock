@@ -10,7 +10,7 @@ import Index_CGR from './category/Index.CGR'
 export default function Index() {
 
     const [session, setSession] = useState(null);
-    const [route, setRoute] = useState('Category')
+    const [route, setRoute] = useState('Product')
 
     useEffect(() => {
         // Get current session (Supabase v2)

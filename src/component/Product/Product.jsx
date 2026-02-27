@@ -5,7 +5,7 @@ import POST_Product from './POST_Product'
 
 export default function Product() {
 
-    const [Add, setAdd] = useState(false);
+    const [Add, setAdd] = useState(true);
 
     return (
         <div style={{ marginTop: 16 }}>
