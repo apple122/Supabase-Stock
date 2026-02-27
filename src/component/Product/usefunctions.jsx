@@ -16,9 +16,16 @@ export default function useFunctions() {
                 .select(`
                     id,
                     pro_img,
+                    cost_price,
+                    sell_price,
+                    sku,
                     pro_name,
                     quantity,
                     created_at,
+                    cate_id (
+                        id,
+                        name
+                    ),
                     user (
                         id,
                         fullname,

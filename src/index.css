@@ -472,7 +472,7 @@ button.primary,
 
   .deploy-item {
     display: grid;
-    grid-template-columns: 20% 20% 15% 1fr 30%;
+    grid-template-columns: 10% 20% 15% 15% 1fr 30%;
     align-items: center;
     padding: 16px;
     border-bottom: 1px solid #1f2430;
@@ -497,14 +497,33 @@ button.primary,
   }
 
   .select-style {
-    width: 60%;
+    width: 100%;
     padding: 8px;
     align-items: center;
+  }
+
+  .screen-width-2 {
+    width: 100%;
+  }
+
+  .branch .commit {
+    font-size: 12px;
+    color: #888;
   }
 
 }
 
 @media (max-width: 720px) {
+
+  .clamp {
+    font-size: clamp(4px, 2.5vw, 16px);
+  }
+
+  .branch .commit {
+    font-size: clamp(4px, 2.5vw, 140px);
+    color: #888;
+  }
+
   .app-layout {
     flex-direction: column;
   }
@@ -529,10 +548,15 @@ button.primary,
 
   .deploy-item {
     display: grid;
-    grid-template-columns: 20% 1fr 20%;
+    grid-template-columns: 15% 30% 32% 8% 1fr 10%;
     align-items: center;
     padding: 16px;
     border-bottom: 1px solid #1f2430;
+  }
+
+  .last-column {
+    grid-column: 1 / -1;
+    /* กินเต็มความกว้าง */
   }
 
   /* time */
@@ -687,17 +711,12 @@ button.primary,
 
 /* project */
 .project {
-  font-weight: 500;
+  /* font-weight: 500; */
 }
 
 /* branch */
 .branch {
-  font-size: 14px;
-}
-
-.branch .commit {
-  font-size: 12px;
-  color: #888;
+  /* font-size: 14px; */
 }
 
 /* POST Product  */
@@ -822,4 +841,32 @@ option {
   align-items: center;
   justify-content: center;
   z-index: 9999;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multi-truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;   /* จำนวนบรรทัด */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.limit-10 {
+  display: inline-block;
+  max-width: 10ch;      /* ประมาณ 10 ตัวอักษร */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.limit-15 {
+  display: inline-block;
+  max-width: 15ch;      /* ประมาณ 15 ตัวอักษร */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

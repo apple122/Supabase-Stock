@@ -42,7 +42,7 @@ export default function GET_Product({ add_data }) {
                     <button className="button" onClick={() => {
                         fetchUsers()
                         handleClick()
-                    }} disabled={loading} style={{ padding: '0 8px', marginTop: 10, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
+                    }} disabled={loading} style={{ padding: '0 8px', marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
                         <Lottie
                             onClick={handleClick}
                             lottieRef={lottieRef}
@@ -78,21 +78,35 @@ export default function GET_Product({ add_data }) {
             ) : (
                 <div class="deploy-list">
                     {users.map((u) => (
-                        <div class="deploy-item">
+                        <div class="deploy-item clamp">
                             <div class="left">
                                 <img src={u.pro_img} style={{ width: 40, height: 40, marginTop: 2, borderRadius: 4, objectFit: 'cover' }} />
                             </div>
 
-                            <div class="project">{u.pro_name}</div>
+                            <div class="project ">
+                                <span style={{ color: '#02be0b' }}>{u.cate_id?.name || '-'}: </span>
+                                <span>{u.pro_name}</span> <br/>
+                                <span className='limit-10'>{u.sku || '-'} </span>
+                            </div>
 
                             <div class="branch">
+                                <div>
+                                    <span class="commit clamp" style={{ color: '#02be0b' }}>ລາຄາຂາຍ: </span>
+                                    {u.sell_price ? Number(u.sell_price).toLocaleString("en-US") : '-'} ₭
+                                </div>
+                                <div>
+                                    <span class="commit" style={{ color: '#be0202' }}>ຕົ້ນທຶນ: </span>
+                                    {u.cost_price ? Number(u.cost_price).toLocaleString("en-US") : '-'} ₭
+                                </div>
+                            </div>
+                            <div class="branch">
                                 <div class="commit">ຈຳນວນ</div>
-                                <div>{u.quantity}</div>
+                                <div>{u.quantity ? Number(u.quantity).toLocaleString("en-US") : '-'}</div>
                             </div>
                             <div class="branch">
                                 <button class="commit" style={{ border: 'none'}}>ຈັດການ</button>
                             </div>
-                            <div class="time">
+                            <div class="time last-column">
                                 <div class="commit" style={{ display: 'flex' }}>
                                     {u.created_at ? new Date(u.created_at).toLocaleString() : '-'}
                                     <hr style={{ margin: '6px 10px', borderColor: '#ffffff28' }} />

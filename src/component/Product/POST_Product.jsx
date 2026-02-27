@@ -201,7 +201,7 @@ export default function POST_Product({ cant_data }) {
                         </div>
                     </div>
 
-                    <div className="project" style={{ display: 'grid', gap: 8 }}>
+                    <div className="project screen-width-2" style={{ display: 'grid', gap: 8 }}>
                         <div className='flex-display'>
                             <select className="select-style" onChange={Options} style={{ background: 'none', borderRadius: 8, border: '0.3px solid #ffffff34' }} required>
                                 <option value={null}>ເລືອກປະເພດລາຍການ</option>
@@ -219,22 +219,22 @@ export default function POST_Product({ cant_data }) {
 
                                 )}
                             </select>
-                            <div className="input-group margin-l">
+                            <div className="input-group margin-l" style={{ width: '100%' }}>
                                 <input type="text" onChange={(e) => setProName(e.target.value)} value={proName} placeholder=" " required />
                                 <label>ສິນຄ້າ</label>
                             </div>
                         </div>
                         <div className='flex-display'>
-                            <div className="input-group">
+                            <div className="input-group" style={{ width: '100%' }}>
                                 <input type="number" onChange={(e) => setQuantity(e.target.value)} value={quantity} placeholder=" " required />
                                 <label>ຈຳນວນ</label>
                             </div>
-                            <div className="input-group margin-l">
+                            <div className="input-group margin-l" style={{ width: '100%' }}>
                                 <input type="number" onChange={(e) => setcost_price(e.target.value)} value={cost_price} placeholder=" " required />
                                 <label>ຕົ້ນທຸນ</label>
                             </div>
-                            <div className="input-group margin-l">
-                                <input type="text" onChange={(e) => setSKU(e.target.value)} value={SKU} placeholder="" required />
+                            <div className="input-group margin-l" style={{ width: '100%' }}>
+                                <input type="text" onChange={(e) => setSKU(e.target.value)} value={SKU} placeholder="" />
                                 <label>ລະຫັດສີນຄ້າ</label>
                             </div>
                         </div>
