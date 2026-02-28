@@ -552,9 +552,17 @@ button.primary,
     width: 50%;
   }
 
+  .btn-reload {
+    padding: 2px 8px;
+  }
+
 }
 
 @media (max-width: 720px) {
+
+  .btn-reload {
+    padding: 0px 8px;
+  }
 
   .deploy-item-order {
     /* display: flex; */
@@ -1075,6 +1083,7 @@ textarea {
 .deploy-item-order:hover {
   background: #151922;
 }
+
 .deploy-item:hover {
   background: #151922;
 }

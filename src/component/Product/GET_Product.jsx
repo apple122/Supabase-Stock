@@ -6,6 +6,7 @@ import reload from '../../icon/refresh.json'
 import plus from '../../icon/plus.png'
 import { supabase } from '../../supabaseClient'
 import loading_animations from '../../icon/loading.json'
+import swal from 'sweetalert'
 
 export default function GET_Product({ add_data }) {
 
@@ -149,15 +150,15 @@ export default function GET_Product({ add_data }) {
         <div style={{ marginTop: 16 }}>
 
             <div className="deploy-item-header" style={{ display: 'flex', alignItems: 'center', marginBottom: 2, gap: 8 }}>
-                <button className="button" onClick={Add_click} disabled={loading} style={{ padding: '2px 4px' }}>
+                <button className="button clamp" onClick={Add_click} disabled={loading} style={{ padding: '6px 6px', display: 'flex', alignItems: 'center' }}>
                     <img src={plus} alt="Add" style={{ width: 12, marginRight: 8, color: '#ffffff' }} />
                     ເພີມສີນຄ້າ
                 </button>
                 <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <button className="button" onClick={() => {
+                    <button className="button clamp btn-reload" onClick={() => {
                         fetchUsers()
                         handleClick()
-                    }} disabled={loading} style={{ padding: '0 8px', marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    }} disabled={loading} style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                         <Lottie
                             onClick={handleClick}
                             lottieRef={lottieRef}
@@ -170,6 +171,65 @@ export default function GET_Product({ add_data }) {
                         {loading ? 'Loading...' : 'Refresh'}
 
                     </button>
+                        <button className="button clamp" onClick={async () => {
+                            // export Product table
+                            try {
+                                const { data, error } = await supabase.from('Product').select('*, cate_id(*), user(*))').order('created_at', { ascending: false })
+                                if (error) throw error
+
+                                // map to custom headers (Thai)
+                                const rows = (data || []).map(p => ({
+                                    'ສິນຄ້າ': p.pro_name ?? '',
+                                    'ລະຫັດ': p.sku ?? '',
+                                    'ລາຄາຂາຍ': p.sell_price != null ? Number(p.sell_price) : '',
+                                    'ຕົ້ນທຸນ': p.cost_price != null ? Number(p.cost_price) : '',
+                                    'ຈຳນວນ': p.quantity != null ? Number(p.quantity) : '',
+                                    'ປະເພດ': p.cate_id?.name ?? '',
+                                    'ຮູບພາບ': p.pro_img ?? '',
+                                    'ສ້າງເວລາ': p.created_at ?? '',
+                                    'ຜູ້ສ້າງ': p.user?.fullname ?? '',
+                                }))
+
+                                console.log('Exporting products', rows)
+
+                                try {
+                                    const XLSXmod = await import('xlsx')
+                                    const XLSX = XLSXmod.default || XLSXmod
+                                    const wb = XLSX.utils.book_new()
+                                    const ws = XLSX.utils.json_to_sheet(rows)
+                                    XLSX.utils.book_append_sheet(wb, ws, 'Product')
+                                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+                                    const blob = new Blob([wbout], { type: 'application/octet-stream' })
+                                    const url = URL.createObjectURL(blob)
+                                    const a = document.createElement('a')
+                                    a.href = url
+                                    a.download = `product_export_${Date.now()}.xlsx`
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    a.remove()
+                                    URL.revokeObjectURL(url)
+                                    swal('ເລີມໂຫຼດຂໍ້ມູນ Product (Excel)', { icon: 'success' })
+                                } catch (e) {
+                                    console.warn('xlsx not available, fallback to JSON', e)
+                                    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
+                                    const url = URL.createObjectURL(blob)
+                                    const a = document.createElement('a')
+                                    a.href = url
+                                    a.download = `product_export_${Date.now()}.json`
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    a.remove()
+                                    URL.revokeObjectURL(url)
+                                    swal('ເລີມໂຫຼດຂໍ້ມູນ Product (JSON)', { icon: 'info' })
+                                }
+                            } catch (err) {
+                                console.error('exportProducts error', err)
+                                swal('ເກີດຂໍ້ຜິດພາດໃນການສົ່ງອອກຂໍ້ມູນ Product', { icon: 'error' })
+                            } finally {
+                            }
+                        }} disabled={loading} style={{ padding: '4px 8px', marginTop: 8, marginLeft: 8 }}>
+                            Export Products
+                        </button>
                 </div>
 
                 <div className="project"> </div>

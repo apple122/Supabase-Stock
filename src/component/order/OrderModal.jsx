@@ -69,7 +69,7 @@ export default function OrderModal({ order, items = [], products = [], onClose }
                                         return (
                                             <li key={idx} style={{ padding: 8, color: '#000000', borderBottom: '1px solid #79797971', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <div>
-                                                    <div style={{ color: '#666', fontSize: 13 }}>ລາຍການ #{idx + 1}</div>
+                                                    <div className='clamp' style={{ color: '#666', fontSize: 13 }}>ລາຍການ #{idx + 1}</div>
                                                     <div style={{ fontWeight: 600, color: '#000000' }}>{prod.pro_name || '-'}</div>
                                                 </div>
                                                 <div style={{ textAlign: 'right' }}>
