@@ -325,7 +325,7 @@ export default function POST_Order({ cant_data }) {
                         disabled={submitting || orderItems.length === 0}
                         style={{ padding: '8px 12px' }}
                     >
-                        {submitting ? 'กำลังส่ง...' : 'บันทึก / สร้างออเดอร์'}
+                        {submitting ? 'ກຳລັງສ້າງອໍເດີ້...' : 'ບັນທຶກ / ສ້າງອໍເດີ້'}
                     </button>
                 </div>
             </div>

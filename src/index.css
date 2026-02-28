@@ -495,6 +495,22 @@ button.primary,
     border-bottom: 1px solid #1f2430;
   }
 
+  .deploy-item-order {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 16px;
+    border-bottom: 1px solid #1f2430;
+    /* gap: 60px; */
+  }
+
+  .first-column {
+    display: flex;
+    width: 100%;
+    /* justify-content: flex-end; */
+    /* grid-template-columns: 20% 20% 20% 1fr 20%; */
+  }
+
   /* time */
   .time {
     font-size: 10px;
@@ -540,6 +556,19 @@ button.primary,
 
 @media (max-width: 720px) {
 
+  .deploy-item-order {
+    /* display: flex; */
+    align-items: center;
+    width: 100%;
+    padding: 16px;
+    border-bottom: 1px solid #1f2430;
+    /* gap: 60px; */
+  }
+
+  .first-column {
+    grid-column: 1 / -1;
+  }
+
   .width-img-put {
     width: 350px;
   }
@@ -549,11 +578,11 @@ button.primary,
   }
 
   .clamp {
-    font-size: clamp(4px, 2.5vw, 16px);
+    font-size: clamp(8px, 2.5vw, 16px);
   }
 
   .branch .commit {
-    font-size: clamp(4px, 2.5vw, 140px);
+    font-size: clamp(8px, 2.5vw, 140px);
     color: #888;
   }
 
@@ -953,6 +982,7 @@ option {
   font-weight: 700;
   font-size: 14px;
 }
+
 .order-item .meta .meta-price {
   font-size: 12px;
   color: #999;
@@ -965,6 +995,7 @@ option {
   gap: 2px;
   justify-content: center;
 }
+
 .order-item .qty input {
   width: 48px;
   text-align: center;
@@ -981,6 +1012,7 @@ option {
   gap: 8px;
   align-items: flex-end;
 }
+
 .order-item .summary .subtotal {
   font-weight: 800;
   font-size: 18px;
@@ -992,14 +1024,17 @@ option {
     grid-template-rows: auto auto;
     gap: 10px;
   }
+
   .order-item .thumb img {
     width: 48px;
     height: 48px;
   }
+
   .order-item .qty {
     grid-column: 1 / -1;
     justify-self: start;
   }
+
   .order-item .summary {
     grid-column: 1 / -1;
     width: 100%;
@@ -1035,4 +1070,11 @@ textarea {
   outline: none;
   transition: 0.3s;
   resize: vertical;
+}
+
+.deploy-item-order:hover {
+  background: #151922;
+}
+.deploy-item:hover {
+  background: #151922;
 }

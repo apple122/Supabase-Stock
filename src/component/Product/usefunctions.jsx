@@ -65,7 +65,7 @@ export default function useFunctions() {
 
         if (error) {
             console.error(error);
-            swal("Delete failed!", { icon: "error" });
+            swal(`ບໍ່ສາມາດລົບຂໍ້ມູນ ${item['pro_name']} ໄດ້! ເນືອງຈາກວ່າຂໍ້ມູນນີ້ມີການນຳໃຊ້ຢູ່ (ອໍເດີ້)`, { icon: "error" });
         } else {
             fetchUsers();
             swal("ລົບຂໍ້ມູນສຳເລັດ!", { icon: "success" });
