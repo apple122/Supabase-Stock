@@ -123,6 +123,7 @@ export default function POST_Order({ cant_data }) {
                     sale_price: totalSale,
                     total_qty: totalQty,
                     address: addressArr,
+                    promotion: promoUnitPrice,
                     readme: 'ຍັງບໍ່ທັນຈັດສົ່ງ',
                 }])
                 .select()
