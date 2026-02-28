@@ -176,11 +176,16 @@ export default function GET_Order({ add_data }) {
 
     useEffect(() => { fetchOrders() }, [])
 
+    function ANavigate() {
+        localStorage.setItem('Navigate', JSON.stringify(['Order', true]))
+        add_data(true)
+    }
+
     return (
         <div style={{ marginTop: 16 }}>
             <div className="deploy-item-header" style={{ display: 'flex', alignItems: 'center', marginBottom: 0, gap: 8 }}>
                 <div style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <button className="button clamp" onClick={() => add_data(true)} disabled={loading} style={{ padding: '6px 6px', display: 'flex', alignItems: 'center' }}>
+                    <button className="button clamp" onClick={ANavigate} disabled={loading} style={{ padding: '6px 6px', display: 'flex', alignItems: 'center' }}>
                         <img src={plus} alt="Add" style={{ width: 12, marginRight: 8, color: '#ffffff' }} />
                         ເພີມສີນຄ້າ
                     </button>

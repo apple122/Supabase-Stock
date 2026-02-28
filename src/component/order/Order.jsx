@@ -4,7 +4,18 @@ import GET_Order from './GET_Order'
 
 export default function Order() {
 
-  const [Add, setAdd] = useState(false);
+  const [Add, setAdd] = useState(() => {
+    const nav = localStorage.getItem('Navigate')
+    if (nav) {
+      try {
+        const parsed = JSON.parse(nav)
+        return parsed[0] === 'Product' && parsed[1] === true
+      } catch (e) {
+        return false
+      }
+    }
+    return false
+  })
 
   return (
     <div>

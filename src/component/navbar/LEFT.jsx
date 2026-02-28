@@ -13,8 +13,8 @@ export default function LEFT({ current, onNavigate }) {
         { id: 'Category', label: 'ປະເພດສິນຄ້າ', icons: Hash },
         { id: 'Product', label: 'ສະຕ໋ອກສີນຄ້າ', icons: Product },
         { id: 'Order', label: 'ອໍເດີ້', icons: order },
-        { id: 'users', label: 'Users' },
-        { id: 'create-user', label: 'Create User' },
+        // { id: 'users', label: 'Users' },
+        // { id: 'create-user', label: 'Create User' },
     ]
 
     function onLogout() {
@@ -66,6 +66,14 @@ export default function LEFT({ current, onNavigate }) {
                             onClick={() => {
                                 onNavigate?.(it.id)
                                 handleClick()
+                                const nav = JSON.parse(localStorage.getItem('Navigate'))
+                                if (it.id === nav?.[0] && nav?.[1] === true) {
+                                    localStorage.setItem('Navigate', JSON.stringify([it.id, false]))
+                                    window.location.reload()
+                                    return
+                                } else {
+                                    localStorage.setItem('Navigate', JSON.stringify([it.id, false]))
+                                }
                             }}
                             style={{
                                 display: 'flex',

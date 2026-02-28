@@ -7,11 +7,24 @@ import LEFT from './navbar/LEFT'
 import Product from './Product/Product'
 import Index_CGR from './category/Index.CGR'
 import Order from './order/Order'
+import POST_Product from './Product/POST_Product'
+import Dashboad from './dashboard/Dashboad'
 
 export default function Index() {
 
     const [session, setSession] = useState(null);
-    const [route, setRoute] = useState('Order')
+    const [route, setRoute] = useState(() => {
+        const nav = localStorage.getItem('Navigate')
+        if (nav) {
+            try {
+                const parsed = JSON.parse(nav)
+                return parsed[0] || 'Dashboard'
+            } catch (e) {
+                return 'Dashboard'
+            }
+        }
+        return 'Dashboard'
+    })
 
     useEffect(() => {
         // Get current session (Supabase v2)
@@ -34,7 +47,7 @@ export default function Index() {
             <LEFT current={route} onNavigate={setRoute} />
 
             <main className="main-content" style={{ paddingRight: 20, paddingLeft: 20, paddingTop: 0, paddingBottom: 20, overflowY: 'auto' }}>
-                {route === 'Dashboard' && 'Dashboard'}
+                {route === 'Dashboard' && <Dashboad />}
                 {route === 'Category' && <Index_CGR />}
                 {route === 'Product' && <Product />}
                 {route === 'Order' && <Order />}

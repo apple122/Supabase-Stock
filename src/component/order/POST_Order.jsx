@@ -3,13 +3,14 @@ import { supabase } from '../../supabaseClient'
 
 export default function POST_Order({ cant_data }) {
     const [products, setProducts] = useState([])
+    const [showProductForm, setShowProductForm] = useState(false)
     const [selectedId, setSelectedId] = useState('')
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [selectedQty, setSelectedQty] = useState(1)
     const [orderItems, setOrderItems] = useState([])
     const ddRef = useRef()
     const [pmType, setPmType] = useState('ຍັງບໍ່ທັນຈ່າຍ')
-    const [promoUnitPrice, setPromoUnitPrice] = useState('')
+    const [promoUnitPrice, setPromoUnitPrice] = useState(null)
     const [recipientName, setRecipientName] = useState('')
     const [recipientPhone, setRecipientPhone] = useState('')
     const [recipientBranch, setRecipientBranch] = useState('')
@@ -23,6 +24,7 @@ export default function POST_Order({ cant_data }) {
                     .from('Product')
                     .select('id, pro_name, sell_price, quantity, pro_img')
                     .order('created_at', { ascending: false })
+                    .eq('is_archived', true) // only fetch products that are not archived
                 if (error) throw error
                 setProducts(data || [])
             } catch (err) {
@@ -44,6 +46,11 @@ export default function POST_Order({ cant_data }) {
         document.addEventListener('mousedown', handleDoc)
         return () => document.removeEventListener('mousedown', handleDoc)
     }, [ddRef])
+
+    function add_product() {
+        localStorage.setItem('Navigate', JSON.stringify(['Product', true]))
+        window.location.reload()
+    }
 
     function addProduct(prod, qty = 1) {
         if (!prod) return
@@ -89,7 +96,7 @@ export default function POST_Order({ cant_data }) {
         setOrderItems(items => items.map(i => String(i.id) === String(id) ? { ...i, qty: n } : i))
     }
     const totalQty = orderItems.reduce((s, it) => s + (Number(it.qty) || 0), 0)
-    const promoUnit = Number(promoUnitPrice) || 0
+    const promoUnit = Number(promoUnitPrice ?? 0) || 0
     const totalSale = orderItems.reduce((s, it) => {
         const unit = Number(it.price) || 0
         const qty = Number(it.qty) || 0
@@ -148,6 +155,28 @@ export default function POST_Order({ cant_data }) {
 
             if (itemError) throw itemError
 
+            // 4️⃣ Update Product quantities in DB (decrement by ordered qty)
+            const updatePromises = orderItems.map(async (it) => {
+                const prod = products.find(p => String(p.id) === String(it.id))
+                const currentStock = Number(prod?.quantity) || 0
+                const newQty = Math.max(currentStock - Number(it.qty || 0), 0)
+                const { error: updErr } = await supabase
+                    .from('Product')
+                    .update({ quantity: newQty })
+                    .eq('id', it.id)
+                if (updErr) throw updErr
+                return { id: it.id, newQty }
+            })
+
+            await Promise.all(updatePromises)
+
+            // update local products state to reflect new quantities
+            setProducts(prev => prev.map(p => {
+                const match = orderItems.find(it => String(it.id) === String(p.id))
+                if (!match) return p
+                return { ...p, quantity: Math.max(Number(p.quantity || 0) - Number(match.qty || 0), 0) }
+            }))
+
             alert('ສ້າງອໍເດີ້ສຳເລັດ!')
             cant_data(false)
 
@@ -168,10 +197,15 @@ export default function POST_Order({ cant_data }) {
         }
     }
 
+    function ANavigate ()  {
+        cant_data(false)
+        localStorage.setItem('Navigate', JSON.stringify(['Order', false]))
+    } 
+
     return (
         <div style={{ marginTop: 16, zIndex: 1 }}>
             <div className="deploy-item-header" style={{ display: 'flex', alignItems: 'center', marginBottom: 2, gap: 8 }}>
-                <button className="button" onClick={() => cant_data(false)} style={{ padding: '2px 4px' }}>
+                <button className="button" onClick={ANavigate} style={{ padding: '2px 4px' }}>
                     <span> {'<'} ຍ້ອນກັບ </span>
                 </button>
 
@@ -202,7 +236,7 @@ export default function POST_Order({ cant_data }) {
                             {dropdownOpen && (
                                 <ul style={{ position: 'absolute', zIndex: 50, left: 0, right: 0, maxHeight: 260, overflow: 'auto', margin: 0, padding: 8, listStyle: 'none', background: '#0f0f0f', border: '1px solid #222', borderRadius: 6 }}>
                                     {products.map(p => (
-                                        <li key={p.id} onClick={() => { addProduct(p, 1); setDropdownOpen(false) }} style={{ display: 'flex', gap: 8, padding: 8, alignItems: 'center', cursor: 'pointer', borderRadius: 6 }}>
+                                        <li className='hover' key={p.id} onClick={() => { addProduct(p, 1); setDropdownOpen(false) }} style={{ display: 'flex', gap: 8, padding: 8, alignItems: 'center', cursor: 'pointer', borderRadius: 6 }}>
                                             <img src={p.pro_img} alt={p.pro_name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, border: '1px solid #222' }} />
                                             <div style={{ flex: 1 }}>
                                                 <div style={{ fontWeight: 600 }}>{p.pro_name}</div>
@@ -210,6 +244,12 @@ export default function POST_Order({ cant_data }) {
                                             </div>
                                         </li>
                                     ))}
+                                    <li className='hover' onClick={add_product} style={{ display: 'flex', gap: 8, padding: 8, alignItems: 'center', cursor: 'pointer', borderRadius: 6 }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 600 }}> </div>
+                                            <div style={{ fontSize: 12, color: '#999' }}> + ເພີມລາຍການສິນຄ້າໃໝ່</div>
+                                        </div>
+                                    </li>
                                 </ul>
                             )}
                         </div>
@@ -275,7 +315,7 @@ export default function POST_Order({ cant_data }) {
                         <option value="ຈ່າຍສົດ" style={{ background: '#0f0f0f', color: '#fff' }}>ຈ່າຍສົດ</option>
                     </select>
                 </div>
-                
+
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <label style={{ width: 120, color: '#999' }}>ຈຳນວນລວມ</label>
                     <input value={totalQty} readOnly style={{ padding: 6, width: 120, textAlign: 'center' }} />

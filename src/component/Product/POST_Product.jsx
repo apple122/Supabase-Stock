@@ -11,6 +11,7 @@ export default function POST_Product({ cant_data }) {
 
     function Add_click(e) {
         cant_data?.(false);
+        localStorage.setItem('Navigate', JSON.stringify(['Product', false]))
     }
 
     const [GC, setGC] = useState([])
@@ -57,8 +58,34 @@ export default function POST_Product({ cant_data }) {
         setImagePreview(imageUrl)
     }
 
-    const Options = (e) => {
-        setcate_id(e.target.value)
+    const Options = async (e) => {
+        const val = e.target.value
+        // If user selected to add a new category, prompt and insert into DB immediately
+        if (val === 'post-cate') {
+            const name = prompt("ກະລຸນາໃສ່ຊື່ປະເພດລາຍການ")
+            if (!name) return
+            try {
+                setLoadata(true)
+                const { data: inserted, error } = await supabase
+                    .from('Category')
+                    .insert({ name })
+                    .select('id,name,created_at')
+                    .single()
+
+                if (error) throw error
+                setGC(prev => [inserted, ...(prev || [])])
+                setcate_id(inserted.id)
+            } catch (err) {
+                console.error('Failed to create Category:', err)
+                alert(err.message || 'Failed to create category')
+            } finally {
+                setLoadata(false)
+            }
+
+            return
+        }
+
+        setcate_id(val)
     }
 
     const handleSubmit = async (e) => {
@@ -80,6 +107,46 @@ export default function POST_Product({ cant_data }) {
         }
 
         setLoading(true)
+
+        // Ensure the selected category actually exists on the server.
+        try {
+            const { data: catCheck, error: catCheckError } = await supabase
+                .from('Category')
+                .select('id,name')
+                .eq('id', Number(cate_id))
+                .limit(1)
+
+            if (catCheckError) throw catCheckError
+
+            if (!catCheck || catCheck.length === 0) {
+                // If category not found, ask user for a name and create it
+                const name = prompt('ປະເພດທີ່ເລືອກບໍ່ມີໃນລະບົບ, ກະລຸນາປ້ອນຊື່')
+                if (!name) {
+                    alert('ບໍ່ສາມາດເພີ່ມສິນຄ້າໄດ້ ໂດຍບໍ່ມີປະເພດ')
+                    setLoading(false)
+                    return
+                }
+                const { data: newCat, error: newCatErr } = await supabase
+                    .from('Category')
+                    .insert({ name })
+                    .select('id')
+                    .single()
+
+                if (newCatErr) {
+                    console.error('Failed to create category:', newCatErr)
+                    alert(newCatErr.message || 'Failed to create category')
+                    setLoading(false)
+                    return
+                }
+
+                setcate_id(newCat.id)
+            }
+        } catch (err) {
+            console.error('Category verification failed:', err)
+            alert(err.message || 'Failed to verify category')
+            setLoading(false)
+            return
+        }
 
         // 1️⃣ Upadoad file to Supabase Storage
         const fileName = Date.now() + "-" + imageFile.name
@@ -128,6 +195,7 @@ export default function POST_Product({ cant_data }) {
                 icon: "success",
             });
             cant_data?.(false);
+            localStorage.setItem('Navigate', JSON.stringify(['Product', false]))
         }
 
         setLoading(false)
@@ -157,6 +225,7 @@ export default function POST_Product({ cant_data }) {
         setcost_price("")
         setPrice("")
     }
+
 
     return (
         <div style={{ marginTop: 16, zIndex: 1 }}>
@@ -214,10 +283,10 @@ export default function POST_Product({ cant_data }) {
                                         {GC.map((u) => (
                                             <option value={u.id}>{u.name}</option>
                                         ))}
-
                                     </>
 
                                 )}
+                                <option value={'post-cate'}>+ ເພີມປະເພດລາຍການ</option>
                             </select>
                             <div className="input-group margin-l" style={{ width: '100%' }}>
                                 <input type="text" onChange={(e) => setProName(e.target.value)} value={proName} placeholder=" " required />

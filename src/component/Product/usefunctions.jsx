@@ -4,7 +4,7 @@ import swal from 'sweetalert';
 
 export default function useFunctions() {
 
-    const [users, setUsers] = useState([])
+    const [GET, setGET] = useState([])
     const [loading, setLoading] = useState(false)
 
     const fetchUsers = async () => {
@@ -34,9 +34,9 @@ export default function useFunctions() {
                     )
                 `)
                 .order("created_at", { ascending: false }) // order by created_at descending
-
+                .eq("is_archived", true) // filter where is_archived is false
             if (error) throw error
-            setUsers(data || [])
+            setGET(data || [])
         } catch (err) {
             console.error('Failed to fetch ap_system.users:', err)
             alert(err.message || err.error_description || 'Failed to fetch users')
@@ -77,7 +77,7 @@ export default function useFunctions() {
     }, [])
 
     return {
-        users,
+        GET,
         loading,
         fetchUsers,
 

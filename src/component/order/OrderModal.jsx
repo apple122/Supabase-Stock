@@ -64,7 +64,7 @@ export default function OrderModal({ order, items = [], products = [], onClose }
                                     {items.map((it, idx) => {
                                         const prod = it.pro_id || {}
                                         const qty = it.quantity ?? it.qty ?? 0
-                                        const unit = it.price ?? it.unit_price ?? prod.price ?? 0
+                                        const unit = prod.sell_price ?? 0
                                         const subtotal = Number(qty) * Number(unit)
                                         return (
                                             <li key={idx} style={{ padding: 8, color: '#000000', borderBottom: '1px solid #79797971', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

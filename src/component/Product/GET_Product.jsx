@@ -11,7 +11,7 @@ import swal from 'sweetalert'
 export default function GET_Product({ add_data }) {
 
     let {
-        users,
+        GET,
         loading,
         fetchUsers,
 
@@ -144,6 +144,68 @@ export default function GET_Product({ add_data }) {
 
     function Add_click(e) {
         add_data?.(true);
+        localStorage.setItem('Navigate', JSON.stringify(['Product', true]))
+    }
+
+    async function plutQty(item) {
+        try {
+            const choice = await swal({
+                title: 'ກະລຸນາເລືອກ',
+                text: 'ຕ້ອງການເພີມສິນຄ້າ ຫຼື ຈັດເກັບສິນຄ້າ?',
+                buttons: {
+                    cancel: 'ຍົກເລີກ',
+                    add: { text: 'ເພີ່ມສິນຄ້າ', value: 'add' },
+                    archive: { text: 'ຈັດເກັບ', value: 'archive' }
+                }
+            })
+
+            if (!choice) return
+
+            if (choice === 'add') {
+                const val = await swal('ປ້ອນຈຳນວນທີ່ຈະເພີ່ມ', { content: 'input' })
+                if (val === null || val === undefined) return
+                const add = Number(val)
+                if (!add || add <= 0) {
+                    swal('ກະລຸນາປ້ອນຈຳນວນທີ່ໃຫ້ເກີນ 0', { icon: 'warning' })
+                    return
+                }
+
+                const current = Number(item.quantity) || 0
+                const newQty = current + add
+
+                const { error } = await supabase
+                    .from('Product')
+                    .update({ quantity: newQty })
+                    .eq('id', item.id)
+
+                if (error) throw error
+
+                swal('ບັນທຶກສຳເລັດ', { icon: 'success' }).then(() => fetchUsers())
+            } else if (choice === 'archive') {
+                const confirm = await swal({
+                    title: 'ຍືນຢັນການຈັດເກັບ',
+                    text: 'ຕ້ອງການຈັດເກັບສິນຄ້ານີ້ ຫຼື ບໍ່?',
+                    buttons: {
+                        cancel: 'ຍົກເລີກ',
+                        ok: 'ຈັດເກັບ'
+                    }
+                })
+                if (!confirm) return
+
+                const { error } = await supabase
+                    .from('Product')
+                    .update({ is_archived: false })
+                    .eq('id', item.id)
+
+                if (error) throw error
+
+                swal('ບັນທຶກສຳເລັດ', { icon: 'success' }).then(() => fetchUsers())
+            }
+
+        } catch (err) {
+            console.error('plutQty error', err)
+            swal('ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກ', { icon: 'error' })
+        }
     }
 
     return (
@@ -171,65 +233,65 @@ export default function GET_Product({ add_data }) {
                         {loading ? 'Loading...' : 'Refresh'}
 
                     </button>
-                        <button className="button clamp" onClick={async () => {
-                            // export Product table
+                    <button className="button clamp" onClick={async () => {
+                        // export Product table
+                        try {
+                            const { data, error } = await supabase.from('Product').select('*, cate_id(*), user(*))').order('created_at', { ascending: false })
+                            if (error) throw error
+
+                            // map to custom headers (Thai)
+                            const rows = (data || []).map(p => ({
+                                'ສິນຄ້າ': p.pro_name ?? '',
+                                'ລະຫັດ': p.sku ?? '',
+                                'ລາຄາຂາຍ': p.sell_price != null ? Number(p.sell_price) : '',
+                                'ຕົ້ນທຸນ': p.cost_price != null ? Number(p.cost_price) : '',
+                                'ຈຳນວນ': p.quantity != null ? Number(p.quantity) : '',
+                                'ປະເພດ': p.cate_id?.name ?? '',
+                                'ຮູບພາບ': p.pro_img ?? '',
+                                'ສ້າງເວລາ': p.created_at ?? '',
+                                'ຜູ້ສ້າງ': p.user?.fullname ?? '',
+                            }))
+
+                            // console.log('Exporting products', rows)
+
                             try {
-                                const { data, error } = await supabase.from('Product').select('*, cate_id(*), user(*))').order('created_at', { ascending: false })
-                                if (error) throw error
-
-                                // map to custom headers (Thai)
-                                const rows = (data || []).map(p => ({
-                                    'ສິນຄ້າ': p.pro_name ?? '',
-                                    'ລະຫັດ': p.sku ?? '',
-                                    'ລາຄາຂາຍ': p.sell_price != null ? Number(p.sell_price) : '',
-                                    'ຕົ້ນທຸນ': p.cost_price != null ? Number(p.cost_price) : '',
-                                    'ຈຳນວນ': p.quantity != null ? Number(p.quantity) : '',
-                                    'ປະເພດ': p.cate_id?.name ?? '',
-                                    'ຮູບພາບ': p.pro_img ?? '',
-                                    'ສ້າງເວລາ': p.created_at ?? '',
-                                    'ຜູ້ສ້າງ': p.user?.fullname ?? '',
-                                }))
-
-                                console.log('Exporting products', rows)
-
-                                try {
-                                    const XLSXmod = await import('xlsx')
-                                    const XLSX = XLSXmod.default || XLSXmod
-                                    const wb = XLSX.utils.book_new()
-                                    const ws = XLSX.utils.json_to_sheet(rows)
-                                    XLSX.utils.book_append_sheet(wb, ws, 'Product')
-                                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
-                                    const blob = new Blob([wbout], { type: 'application/octet-stream' })
-                                    const url = URL.createObjectURL(blob)
-                                    const a = document.createElement('a')
-                                    a.href = url
-                                    a.download = `product_export_${Date.now()}.xlsx`
-                                    document.body.appendChild(a)
-                                    a.click()
-                                    a.remove()
-                                    URL.revokeObjectURL(url)
-                                    swal('ເລີມໂຫຼດຂໍ້ມູນ Product (Excel)', { icon: 'success' })
-                                } catch (e) {
-                                    console.warn('xlsx not available, fallback to JSON', e)
-                                    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
-                                    const url = URL.createObjectURL(blob)
-                                    const a = document.createElement('a')
-                                    a.href = url
-                                    a.download = `product_export_${Date.now()}.json`
-                                    document.body.appendChild(a)
-                                    a.click()
-                                    a.remove()
-                                    URL.revokeObjectURL(url)
-                                    swal('ເລີມໂຫຼດຂໍ້ມູນ Product (JSON)', { icon: 'info' })
-                                }
-                            } catch (err) {
-                                console.error('exportProducts error', err)
-                                swal('ເກີດຂໍ້ຜິດພາດໃນການສົ່ງອອກຂໍ້ມູນ Product', { icon: 'error' })
-                            } finally {
+                                const XLSXmod = await import('xlsx')
+                                const XLSX = XLSXmod.default || XLSXmod
+                                const wb = XLSX.utils.book_new()
+                                const ws = XLSX.utils.json_to_sheet(rows)
+                                XLSX.utils.book_append_sheet(wb, ws, 'Product')
+                                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+                                const blob = new Blob([wbout], { type: 'application/octet-stream' })
+                                const url = URL.createObjectURL(blob)
+                                const a = document.createElement('a')
+                                a.href = url
+                                a.download = `product_export_${Date.now()}.xlsx`
+                                document.body.appendChild(a)
+                                a.click()
+                                a.remove()
+                                URL.revokeObjectURL(url)
+                                swal('ເລີມໂຫຼດຂໍ້ມູນ Product (Excel)', { icon: 'success' })
+                            } catch (e) {
+                                console.warn('xlsx not available, fallback to JSON', e)
+                                const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
+                                const url = URL.createObjectURL(blob)
+                                const a = document.createElement('a')
+                                a.href = url
+                                a.download = `product_export_${Date.now()}.json`
+                                document.body.appendChild(a)
+                                a.click()
+                                a.remove()
+                                URL.revokeObjectURL(url)
+                                swal('ເລີມໂຫຼດຂໍ້ມູນ Product (JSON)', { icon: 'info' })
                             }
-                        }} disabled={loading} style={{ padding: '4px 8px', marginTop: 8, marginLeft: 8 }}>
-                            Export Products
-                        </button>
+                        } catch (err) {
+                            console.error('exportProducts error', err)
+                            swal('ເກີດຂໍ້ຜິດພາດໃນການສົ່ງອອກຂໍ້ມູນ Product', { icon: 'error' })
+                        } finally {
+                        }
+                    }} disabled={loading} style={{ padding: '4px 8px', marginTop: 8, marginLeft: 8 }}>
+                        Export Products
+                    </button>
                 </div>
 
                 <div className="project"> </div>
@@ -248,12 +310,15 @@ export default function GET_Product({ add_data }) {
 
             {loading ? (
                 <p>Loading...</p>
-            ) : users.length === 0 ? (
+            ) : GET.length === 0 ? (
                 <p>No data found.</p>
             ) : (
                 <div class="deploy-list">
-                    {users.map((u) => (
-                        <div class="deploy-item clamp">
+                    {GET.map((u) => (
+                        <div class="deploy-item clamp position-relative" style={{ backgroundColor: u.quantity == 0 ? '#ff00001a' : '' }} key={u.id}>
+                            <div className='notification-position' style={{ display: u.quantity == 0 ? '' : 'none' }}>
+                                <button className='button' onClick={() => plutQty(u)} style={{ padding: '2px 6px', fontSize: 25, backgroundColor: 'transparent', border: 'none' }}> ສິນຄ້າໝົດ / ກົດເພືອເພີມສີນຄ້າ ......</button>
+                            </div>
                             <div class="left">
                                 <img src={u.pro_img} style={{ width: 40, height: 40, marginTop: 2, borderRadius: 4, objectFit: 'cover' }} />
                             </div>
@@ -278,7 +343,7 @@ export default function GET_Product({ add_data }) {
                                 <div class="commit">ຈຳນວນ</div>
                                 <div>{u.quantity ? Number(u.quantity).toLocaleString("en-US") : '-'}</div>
                             </div>
-                            <div class="branch">
+                            <div class="branch" style={{ display: u.quantity == 0 ? 'none' : '' }}>
                                 <Dropdown
                                     label={'ຈັດການ'}
                                     value={u}
