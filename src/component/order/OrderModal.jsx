@@ -13,19 +13,32 @@ export default function OrderModal({ order, items = [], products = [], onClose }
     const handlePrint = () => {
         if (!printRef.current) return
         const printHtml = printRef.current.innerHTML
-        const win = window.open('', '_blank', 'width=800,height=600')
-        if (!win) return
-        win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Receipt</title>')
-        // clone styles
-        Array.from(document.querySelectorAll('link[rel="stylesheet"], style')).forEach(node => {
-            try { win.document.head.appendChild(node.cloneNode(true)) } catch (e) { /* ignore */ }
-        })
-        win.document.write('</head><body>')
-        win.document.write(printHtml)
-        win.document.write('</body></html>')
-        win.document.close()
-        win.focus()
-        win.print()
+
+        // create print-only container
+        const container = document.createElement('div')
+        container.className = 'print-only'
+        container.style.boxSizing = 'border-box'
+        container.innerHTML = printHtml
+        document.body.appendChild(container)
+
+        // temporary print styles to hide other content
+        const style = document.createElement('style')
+        style.id = 'print-only-style'
+        style.innerHTML = `@media print { body *{visibility:hidden} .print-only, .print-only *{visibility:visible} .print-only{position:fixed;left:0;top:0;width:100%} }`
+        document.head.appendChild(style)
+
+        const cleanup = () => {
+            try { document.head.removeChild(style) } catch (e) { }
+            try { document.body.removeChild(container) } catch (e) { }
+            window.removeEventListener('afterprint', cleanup)
+        }
+
+        // ensure cleanup after print
+        window.addEventListener('afterprint', cleanup)
+        // fallback cleanup in case afterprint not fired
+        setTimeout(() => { try { cleanup() } catch (e) {} }, 1000)
+
+        window.print()
     }
     // console.log('OrderModal render', { order, items, products })
     return (
