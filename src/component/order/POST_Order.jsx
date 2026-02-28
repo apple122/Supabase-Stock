@@ -119,6 +119,7 @@ export default function POST_Order({ cant_data }) {
                 .from('Order')
                 .insert([{
                     pm_type: pmType,
+                    user_id: localStorage.getItem('data_id'),
                     sale_price: totalSale,
                     total_qty: totalQty,
                     address: addressArr,
@@ -146,7 +147,8 @@ export default function POST_Order({ cant_data }) {
 
             if (itemError) throw itemError
 
-            alert('สร้างออเดอร์เรียบร้อย')
+            alert('ສ້າງອໍເດີ້ສຳເລັດ!')
+            cant_data(false)
 
             // reset
             setOrderItems([])
@@ -269,7 +271,7 @@ export default function POST_Order({ cant_data }) {
                     >
                         <option value="ຍັງບໍ່ທັນຈ່າຍ" style={{ background: '#0f0f0f', color: '#fff' }}>ຍັງບໍ່ທັນຈ່າຍ</option>
                         <option value="ໂອນ" style={{ background: '#0f0f0f', color: '#fff' }}>ໂອນ</option>
-                        <option value="ສົດ" style={{ background: '#0f0f0f', color: '#fff' }}>ສົດ</option>
+                        <option value="ຈ່າຍສົດ" style={{ background: '#0f0f0f', color: '#fff' }}>ຈ່າຍສົດ</option>
                     </select>
                 </div>
                 
