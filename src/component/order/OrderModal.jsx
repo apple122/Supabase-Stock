@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 
 function renderValue(v) {
     if (v === null || v === undefined) return '-'
@@ -7,16 +7,36 @@ function renderValue(v) {
 }
 
 export default function OrderModal({ order, items = [], products = [], onClose }) {
+    const printRef = useRef()
     if (!order) return null
+
+    const handlePrint = () => {
+        if (!printRef.current) return
+        const printHtml = printRef.current.innerHTML
+        const win = window.open('', '_blank', 'width=800,height=600')
+        if (!win) return
+        win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Receipt</title>')
+        // clone styles
+        Array.from(document.querySelectorAll('link[rel="stylesheet"], style')).forEach(node => {
+            try { win.document.head.appendChild(node.cloneNode(true)) } catch (e) { /* ignore */ }
+        })
+        win.document.write('</head><body>')
+        win.document.write(printHtml)
+        win.document.write('</body></html>')
+        win.document.close()
+        win.focus()
+        win.print()
+    }
     // console.log('OrderModal render', { order, items, products })
     return (
-        <div className='clamp' style={{ position: 'fixed' ,padding: 15, left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={onClose}>
-            <div style={{ background: '#ffffff',color: '#000000' , padding: 20, borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.2)', width: '95vw', maxWidth: 500, boxSizing: 'border-box' }} onClick={(e) => e.stopPropagation()}>
+        <div className='clamp prin-class' style={{ position: 'fixed' ,padding: 15, left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={onClose}>
+            <div ref={printRef} style={{ background: '#ffffff',color: '#000000' , padding: 20, borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.2)', width: '95vw', maxWidth: 500, boxSizing: 'border-box' }} onClick={(e) => e.stopPropagation()}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                     <h3 style={{ margin: 0 ,color: '#000000'  }}>ໃບບີນ #{order.id}</h3>
                     <div style={{ display: 'flex', gap: 8 }}>
                         {/* <div style={{ padding: '4px 8px', background: '#eee', borderRadius: 6 }}>{order.pm_type || '-'}</div> */}
-                        <button className='button' onClick={onClose}>ປິດ</button>
+                        <button className='button' style={{ padding: '2px 6px' }} onClick={handlePrint}>Print</button>
+                        <button className='button' style={{ padding: '2px 6px' }} onClick={onClose}>ປິດ</button>
                     </div>
                 </div>
 
@@ -108,7 +128,7 @@ export default function OrderModal({ order, items = [], products = [], onClose }
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                     <div style={{ color: '#666' }}>ເວລາ: {new Date(order.created_at).toLocaleString() || '-'}</div>
-                    <div style={{ fontWeight: 700, color: '#000000' }}>Total: {order.sale_price ? Number(order.sale_price).toLocaleString() + ' ₭' : '-'}</div>
+                    <div style={{ fontWeight: 700, fontSize: 18, color: '#000000' }}>Total: {order.sale_price ? Number(order.sale_price).toLocaleString() + ' ₭' : '-'}</div>
                 </div>
             </div>
         </div>
